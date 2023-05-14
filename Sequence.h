@@ -15,6 +15,7 @@ public:
     virtual size_t GetLength() = 0;
     virtual void Append(T item) = 0;
     virtual void Prepend(T item) = 0;
+//    virtual T& operator[] (const size_t& index) = 0;
     virtual void InsertAt(T item, size_t index) = 0;
     virtual Sequence <T>* Concat(Sequence <T> *list) = 0;
 };
