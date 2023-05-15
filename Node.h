@@ -11,6 +11,7 @@ public:
     Node(T value, Node<T> *next) : value(value), next(next) {}
     Node(Node<T> &node) : value(node.value), next(node.next) {}
     Node(T value) : value(value), next(nullptr) {}
+    ~Node() {delete next;}
     T GetValue() const {
         return value;
     }

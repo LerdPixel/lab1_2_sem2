@@ -2,7 +2,7 @@
 //#include "Sequence.h"
 #include "DynamicArray.h"
 #include "ArraySequence.h"
-
+#include "LinkedList.h"
 int main()
 {
     int a[] {1, 2, 3};
