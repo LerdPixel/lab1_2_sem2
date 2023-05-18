@@ -8,7 +8,7 @@ protected:
     Node<T> *header;
     size_t length;
 private:
-    Node<T>* GetNode(size_t index);
+    Node<T>* GetNode(size_t index) const;
 public:
     LinkedList();
     LinkedList(T *items, size_t size);
@@ -75,11 +75,11 @@ LinkedList<T> :: LinkedList(Node<T>* head) {
 template <typename T>
 LinkedList<T> :: ~LinkedList() {
     Node<T> *node = header;
-    Node<T> *nodeNext = header->GetNext();
-    for (size_t i = 0; i < length; ++i) {
+    Node<T> *nodeNext;
+    while(node != nullptr) {
+        nodeNext = node->GetNext();
         delete node;
         node = nodeNext;
-        nodeNext = nodeNext->GetNext();
     }
 }
 template <typename T>
@@ -119,7 +119,7 @@ T LinkedList<T> :: Get(size_t index) const {
     return GetNode(index)->GetValue();
 }
 template <typename T>
-Node<T>* LinkedList<T> :: GetNode(size_t index) {
+Node<T>* LinkedList<T> :: GetNode(size_t index) const {
     if (index < length && index >= 0 && header != nullptr) {
         Node<T>* node = header;
         for (size_t i = 0; i < index; i++) {

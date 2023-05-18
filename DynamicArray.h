@@ -64,7 +64,7 @@ T DynamicArray<T> :: Get(size_t index) const {
     if (index < 0 || index >= this->length) {
         throw std::out_of_range("IndexOutOfRange");
     }
-    return this->array[index];
+    return array[index];
 }
 
 template <typename T>

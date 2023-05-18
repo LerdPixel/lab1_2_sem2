@@ -11,17 +11,17 @@ public:
     Node(T value, Node<T> *next) : value(value), next(next) {}
     Node(Node<T> &node) : value(node.value), next(node.next) {}
     Node(T value) : value(value), next(nullptr) {}
-    ~Node() {delete next;}
+//    ~Node() {delete next;}
     T GetValue() const {
         return value;
     }
     Node<T> *GetNext() const {
         return next;
     }
-    void SetNext(Node<T> *node) const {
+    void SetNext(Node<T> *node) {
         next = node;
     }
-    void SetValue(T value) const {
+    void SetValue(T value) {
         this->value = value;
     }
 };
