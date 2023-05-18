@@ -6,7 +6,6 @@ template <typename T>
 class LinkedList {
 protected:
     Node<T> *header;
-    size_t length;
 private:
     Node<T>* GetNode(size_t index) const;
 public:
@@ -20,57 +19,55 @@ public:
     T Get(size_t index) const;
     LinkedList<T> *GetSubList(size_t startIndex, size_t endIndex) const;
     size_t GetLength() const;
-    void SetLength();
     void Append(T item);
     void Prepend(T item);
     void InsertAt(T item, size_t index);
     void Set(size_t index, T value);
     LinkedList<T>* Concat(LinkedList<T> *list) const;
+    inline bool operator==(const LinkedList<T> &rhs) const;
 };
 
 template <typename T>
 LinkedList<T> :: LinkedList() {
     header = nullptr;
-    length = 0;
 }
 template <typename T>
 LinkedList<T> :: LinkedList(T *items, size_t size) {
     if (size < 0)
         throw std::length_error("Size can't be negative");
-    length = size;
     if (size == 0) {
         header = nullptr;
     }
     else {
         header = new Node<T>(items[0], nullptr);
         Node<T> *nodeRing = header;
-        for (size_t i = 1; i < length; ++i) {
+        for (size_t i = 1; i < size; ++i) {
             nodeRing->SetNext(new Node<T>(items[i], nullptr));
             nodeRing = nodeRing->GetNext();
         }
     }
 }
 template <typename T>
-LinkedList<T> :: LinkedList(const LinkedList <T> & list) {
-    length = list->length;
-    header = new Node<T>(list->header);
-    Node<T> *nodeRing = header;
-    Node<T> *listnodeRing = list->header->GetNext();
-    for (size_t i = 1; i < length; i++) {
-        nodeRing->SetNext(new Node<T>(listnodeRing, nullptr));
-        nodeRing = nodeRing->GetNext();
-        listnodeRing = listnodeRing->GetNext();
+LinkedList<T> :: LinkedList(const LinkedList <T> &list) {
+    if (list.header == nullptr) {
+        header = nullptr;
+        return;
+    }
+    header = new Node<T>(*list.header);
+    Node<T> *node = header;
+    Node<T> *listNode = list.header->GetNext();
+    while(listNode != nullptr) {
+        node->SetNext(new Node<T>(*listNode));
+        node = node->GetNext();
+        listNode = listNode->GetNext();
     }
 }
 template <typename T>
 LinkedList<T> :: LinkedList(Node<T>* head) {
     header = head;
-    size_t i = 0;
     while (head != nullptr) {
-        ++i;
         head = head->GetNext();
     }
-    length = i;
 }
 template <typename T>
 LinkedList<T> :: ~LinkedList() {
@@ -84,8 +81,8 @@ LinkedList<T> :: ~LinkedList() {
 }
 template <typename T>
 T LinkedList<T> :: GetFirst() const {
-    if (length != 0 && header != nullptr) {
-        return header->value;
+    if (header != nullptr) {
+        return header->GetValue();
     }
     else {
         throw std::out_of_range("IndexOutOfRange");
@@ -93,7 +90,7 @@ T LinkedList<T> :: GetFirst() const {
 }
 template <typename T>
 T LinkedList<T> :: GetLast() const {
-    if (length != 0 && header != nullptr) {
+    if (header != nullptr) {
         Node<T>* node = header;
         while (node->GetNext() != nullptr) {
             node = node->GetNext();
@@ -106,20 +103,11 @@ T LinkedList<T> :: GetLast() const {
 }
 template <typename T>
 T LinkedList<T> :: Get(size_t index) const {
-/*    if (index < length && index >= 0 && header != nullptr) {
-        Node<T>* node = header;
-        for (size_t i = 0; i < index; i++) {
-            node = node->GetNext();
-        }
-        return node->GetValue();
-    }
-    else {
-        throw std::out_of_range("IndexOutOfRange");
-    }*/
     return GetNode(index)->GetValue();
 }
 template <typename T>
 Node<T>* LinkedList<T> :: GetNode(size_t index) const {
+    size_t length = GetLength();
     if (index < length && index >= 0 && header != nullptr) {
         Node<T>* node = header;
         for (size_t i = 0; i < index; i++) {
@@ -133,35 +121,34 @@ Node<T>* LinkedList<T> :: GetNode(size_t index) const {
 }
 template <typename T>
 size_t LinkedList<T> :: GetLength() const {
-    return length;
-}
-template <typename T>
-void LinkedList<T> :: SetLength() {
     Node<T>* node = header;
     size_t i = 0;
     while (node != nullptr) {
-        ++i;
         node = node->GetNext();
+        ++i;
     }
-    length = i;
+    return i;
 }
 template <typename T>
 void LinkedList<T> :: Append(T item) {
+    if (header == nullptr) {
+        header = new Node<T>(item);
+        return;
+    }
     Node<T>* node = header;
-    while (node != nullptr) {
+    while (node->GetNext() != nullptr) {
         node = node->GetNext();
     }
-    node = new Node<T>(item, nullptr);
-    SetLength();
+    node->SetNext(new Node<T>(item, nullptr));
 }
 template <typename T>
 void LinkedList<T> :: Prepend(T item) {
     Node<T>* node = header;
     header = new Node<T>(item, node);
-    SetLength();
 }
 template <typename T>
 void LinkedList<T> :: Set(size_t index, T value) {
+    size_t length = GetLength();
     if (index < length && index >= 0 && header != nullptr) {
         Node<T>* node = header;
         for (size_t i = 0; i < index; i++) {
@@ -175,18 +162,21 @@ void LinkedList<T> :: Set(size_t index, T value) {
 }
 template <typename T>
 LinkedList<T> * LinkedList<T> :: GetSubList(size_t startIndex, size_t endIndex) const {
-    if (startIndex < length && startIndex >= 0 && endIndex < length && endIndex >= 0 && header != nullptr) {
+    size_t length = GetLength();
+    if (startIndex <= length && startIndex >= 0 && endIndex <= length && endIndex >= 0/* && header != nullptr*/) {
         if (startIndex > endIndex) {
             size_t t = startIndex;
             startIndex = endIndex;
             endIndex = t;
         }
+        else if (startIndex == endIndex)
+            return new LinkedList();
         Node<T>* node = GetNode(startIndex);
-        Node<T>* newHeader = new Node<T>(node);
+        Node<T>* newHeader = new Node<T>(*node);
         Node<T>* newNode = newHeader;
-        for (size_t i = startIndex; i <= endIndex; i++) {
+        for (size_t i = startIndex + 1; i < endIndex; ++i) {
             node = node->GetNext();
-            newNode->SetNext(new Node<T>(node));
+            newNode->SetNext(new Node<T>(*node));
             newNode = newNode->GetNext();
         }
         newNode->SetNext(nullptr);
@@ -199,22 +189,41 @@ LinkedList<T> * LinkedList<T> :: GetSubList(size_t startIndex, size_t endIndex) 
 template <typename T>
 LinkedList<T>* LinkedList<T> :: Concat(LinkedList<T> *list) const {
     LinkedList<T>* newList = new LinkedList(*this);
-    for (size_t i = 0; i < list->length; i++) {
+    size_t listLength = list->GetLength();
+    for (size_t i = 0; i < listLength; ++i) {
         newList->Append(list->Get(i));
     }
     return newList;
 }
 template <typename T>
 void LinkedList<T> :: InsertAt(T item, size_t index) {
+    size_t length = GetLength();
     if (index > length || index < 0)
         throw std::out_of_range("IndexOutOfRange");
-    if (index == 0) {
+    if (index == 0 || header == nullptr) {
         header = new Node<T>(item, header);
     }
     else {
-        Node<T> *stNode = GetNode(index);
+        Node<T> *stNode = GetNode(index-1);
         Node<T> *newNode = new Node<T>(item, stNode->GetNext());
         stNode->SetNext(newNode);
     }
+}
+template <typename T>
+inline bool LinkedList<T> :: operator==(const LinkedList<T> &rhs) const {
+    Node<T> *nodeL = this->header, *nodeR = rhs.header;
+    size_t i = 0;
+    while(nodeL != nullptr && nodeR != nullptr) {
+        std::cout << i++ << "   left:" << nodeL->GetValue() << "   right:" << nodeR->GetValue() << '\n';
+        if (nodeL->GetValue() != nodeR->GetValue())
+            return false;
+        nodeL = nodeL->GetNext();
+        nodeR = nodeR->GetNext();
+    }
+    if (nodeL == nullptr && nodeR == nullptr) {
+        std::cout << "/* message */"<< i << '\n';
+        return true;
+    }
+    return false;
 }
 #endif

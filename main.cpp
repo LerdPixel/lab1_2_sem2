@@ -1,7 +1,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
 #include "ArraySequence.h"
-#include "LinkedListSequence.h"
+//#include "LinkedListSequence.h"
 #include "test.h"
 
 int main(int argc, char **argv) {
