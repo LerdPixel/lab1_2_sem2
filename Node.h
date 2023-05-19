@@ -12,6 +12,9 @@ public:
     Node(Node<T> &node) : value(node.value), next(node.next) {}
     Node(T value) : value(value), next(nullptr) {}
 //    ~Node() {delete next;}
+    T& GetReference() {
+        return value;
+    }
     T GetValue() const {
         return value;
     }

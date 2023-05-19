@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
 #include "DynamicArray.h"
-#include "ArraySequence.h"
 #include "LinkedList.h"
-//#include "LinkedListSequence.h"
+#include "LinkedListSequence.h"
+#include "ArraySequence.h"
+#include "Sequence.h"
 #include <vector>
 #include <memory>
 #include <string>
@@ -98,7 +99,14 @@ TEST_F(DynamicArrayTests, DynamicArray_Resize) {
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
-
+TEST_F(DynamicArrayTests, DynamicArray_Enumerator_3) {
+    auto e = dc[1]->GetEnumerator();
+    int i = 1;
+    while (e->next()) {
+        ++i;
+    }
+    ASSERT_EQ(i, 1);
+}
 TEST_F(DynamicArrayTest, DynamicArray_Get) {
     int i = 0;
     for (i; i < dc->GetLength(); ++i) {
@@ -106,12 +114,22 @@ TEST_F(DynamicArrayTest, DynamicArray_Get) {
     }
 }
 TEST_F(DynamicArrayTest, DynamicArray_Enumerator) {
-    auto e = dc->getEnumerator();
+    auto e = dc->GetEnumerator();
     int i = 1;
     while (e->next()) {
         ASSERT_EQ(*(*e), i++);
     }
-    delete e;
+}
+TEST_F(DynamicArrayTest, DynamicArray_Enumerator_2) {
+    auto e = dc->GetEnumerator();
+    int i = 1;
+    while (e->next()) {
+        *(*e) = 10;
+    }
+    e = dc->GetEnumerator();
+    while (e->next()) {
+        ASSERT_EQ(*(*e), 10);
+    }
 }
 struct LinkedListTests : public testing::Test {
     int size;
@@ -207,6 +225,40 @@ TEST_F(LinkedListTests, LinkedList_GetLast_edgeCase1) {
 
 TEST_F(LinkedListTests, LinkedList_GetLast_2) {
     ASSERT_EQ(dc[0]->GetLast(), 5);
+}
+TEST_F(LinkedListTests, LinkedList_Enumerator_3) {
+    auto e = dc[1]->GetEnumerator();
+    int i = 1;
+    while (e->next()) {
+        ++i;
+    }
+    ASSERT_EQ(i, 2);
+}
+TEST_F(LinkedListTests, LinkedList_Enumerator) {
+    auto e = dc[0]->GetEnumerator();
+    int i = 1;
+    while (e->next()) {
+        ASSERT_EQ(*(*e), i++);
+    }
+}
+TEST_F(LinkedListTests, LinkedList_Enumerator4) {
+    auto e = dc[2]->GetEnumerator();
+    int i = 1;
+    while (e->next()) {
+        ++i;
+    }
+    ASSERT_EQ(i, 1);
+}
+TEST_F(LinkedListTests, LinkedList_Enumerator_2) {
+    auto e = dc[0]->GetEnumerator();
+    int i = 1;
+    while (e->next()) {
+        *(*e) = 10;
+    }
+    e = dc[0]->GetEnumerator();
+    while (e->next()) {
+        ASSERT_EQ(*(*e), 10);
+    }
 }
 
 TEST_F(LinkedListTests, LinkedList_Equel) {
@@ -437,3 +489,56 @@ TEST_F(LinkedListTests, LinkedList_InsertAt_edgeCase_3) {
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
+struct SequenceTests : public testing::Test {
+    int size;
+    Sequence<int>** dc;
+    void SetUp() {
+        size = 6;
+        int a[] {1, 2, 3, 4, 5};
+        int b[] {1};
+        int c[] {};
+        int d[] {1, 2, 3, 5, 4};
+        dc = new Sequence<int>* [size];
+        dc[0] = new LinkedListSequence<int>(a, 5);
+        dc[1] = new LinkedListSequence<int>(b, 1);
+        dc[2] = new LinkedListSequence<int>();
+        dc[3] = new LinkedListSequence<int>(a, 5);
+        dc[4] = new LinkedListSequence<int>(b, 1);
+        dc[5] = new LinkedListSequence<int>(d, 5);
+    }
+    void TearDown() {
+        for (size_t i = 0; i < size; i++) {
+            delete dc[i];
+        }
+    }
+};
+int fun1(int x) {
+    return x*x;
+}
+double fun2(int x) {
+    return (double)x / 2.0;
+}
+TEST_F(SequenceTests, Sequence_Map_1) {
+    int a [] {1, 2, 3};
+    int b [] {1, 4, 9, 16, 25};
+    Sequence<int> *d1 = dc[0]->Map<LinkedListSequence<int>,int>(&fun1);
+    ASSERT_TRUE(*d1 == LinkedListSequence<int>(b, 5));
+}
+TEST_F(SequenceTests, Sequence_Map_2) {
+    double b [] {0.5, 1, 1.5, 2, 2.5};
+    Sequence<double> *d1 = dc[0]->Map<LinkedListSequence<double>,double>(&fun2);
+    ASSERT_TRUE(*d1 == LinkedListSequence<double>(b, 5));
+}
+
+TEST_F(SequenceTests, Sequence_Map_3) {
+    double b [] {};
+    Sequence<double> *d1 = dc[2]->Map<LinkedListSequence<double>,double>(&fun2);
+    ASSERT_TRUE(*d1 == LinkedListSequence<double>());
+}
+/*
+TEST_F(SequenceTests, Sequence_Reduce_1) {
+    double b [] {};
+    Sequence<double> *d1 = dc[2]->Map<LinkedListSequence<int>,double>(&fun2);
+    ASSERT_TRUE(*d1 == LinkedListSequence<double>());
+}
+*/

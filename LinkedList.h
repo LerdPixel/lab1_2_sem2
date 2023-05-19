@@ -3,20 +3,42 @@
 #include "Node.h"
 
 template <typename T>
-class LinkedList {
+class LinkedList : public IEnumerable<T> {
 protected:
     Node<T> *header;
 private:
     Node<T>* GetNode(size_t index) const;
 public:
+    class LinkedListEnumerator : public IEnumerator<T> {
+        Node<T>* _n;
+        LinkedList<T> *_s;
+        bool _st;
+    public:
+        LinkedListEnumerator(LinkedList<T> *s) : _s(s), _n(s->header), _st(true) {}
+        bool next() override {
+            if (_st) {
+                _st = false;
+                if (_n == nullptr)
+                    return false;
+                return true;
+            }
+            if (_n == nullptr || _n->GetNext() == nullptr)
+                return false;
+            _n = _n->GetNext();
+            return true;
+        }
+        T& operator * () override { return _n->GetReference(); }
+    };
     LinkedList();
     LinkedList(T *items, size_t size);
     LinkedList(const LinkedList<T> &list);
     LinkedList(Node<T>* head);
     ~LinkedList();
+    std::shared_ptr<IEnumerator<T>> GetEnumerator() override;
     T GetFirst() const;
     T GetLast() const;
     T Get(size_t index) const;
+    T& operator[](size_t index);
     LinkedList<T> *GetSubList(size_t startIndex, size_t endIndex) const;
     size_t GetLength() const;
     void Append(T item);
@@ -80,6 +102,10 @@ LinkedList<T> :: ~LinkedList() {
     }
 }
 template <typename T>
+std::shared_ptr<IEnumerator<T>> LinkedList<T> :: GetEnumerator() {
+    return std::shared_ptr<IEnumerator<T>>(new LinkedList<T>::LinkedListEnumerator(this));
+}
+template <typename T>
 T LinkedList<T> :: GetFirst() const {
     if (header != nullptr) {
         return header->GetValue();
@@ -104,6 +130,10 @@ T LinkedList<T> :: GetLast() const {
 template <typename T>
 T LinkedList<T> :: Get(size_t index) const {
     return GetNode(index)->GetValue();
+}
+template <typename T>
+T& LinkedList<T> :: operator[](size_t index) {
+    return GetNode(index)->GetReference();
 }
 template <typename T>
 Node<T>* LinkedList<T> :: GetNode(size_t index) const {

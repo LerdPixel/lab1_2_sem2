@@ -26,6 +26,9 @@ public:
     ArraySequence(DynamicArray<T> &dynamicArray) {
         this->elements = new DynamicArray<T>(dynamicArray);
     }
+    std::shared_ptr<IEnumerator<T>> GetEnumerator() {
+        return elements->GetEnumerator();
+    }
     T GetFirst() const override {
         return elements->Get(0);
     }
@@ -49,7 +52,7 @@ public:
         }
         return new ArraySequence<T>(dynamicArray);
     }
-    size_t GetLength() override {
+    size_t GetLength() const override {
         return this->elements->GetLength();
     }
     void Append(T item) override {
@@ -68,11 +71,9 @@ public:
     void Set(size_t index, T item) override {
         elements->Set(index, item);
     }
-/*    T& operator[] (const size_t& index) {
-        if (index < 0 || index > this->elements->GetLength())
-            throw std::out_of_range("IndexOutOfRange");
-        return this->elements->Get(index);
-    }*/
+    T& operator[] (const size_t index) {
+        return this->elements[index];
+    }
     void InsertAt(T item, size_t index) override {
         if (index < 0 || index > this->elements->GetLength())
             throw std::out_of_range("IndexOutOfRange");
@@ -90,6 +91,15 @@ public:
         }
         return resSequence;
     }
+/*    Sequence <T2>* map(T2*f(T)) const {
+        auto e = new GetEnumerator();
+        ArraySequence<T2> *resSequence = new ArraySequence<T2>();
+        while (e->next()) {
+            resSequence->Append(f(*(*e)));
+        }
+        delete e;
+        return resSequence;
+    }*/
 };
 
 #endif

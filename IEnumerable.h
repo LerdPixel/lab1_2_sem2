@@ -3,9 +3,9 @@
 #include <memory>
 #include "IEnumerator.h"
 
+
 template <class T> class IEnumerable {
 public:
-    virtual IEnumerator<T> *getEnumerator() = 0;
+    virtual std::shared_ptr<IEnumerator<T>> GetEnumerator() = 0;
 };
-
 #endif

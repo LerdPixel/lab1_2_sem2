@@ -16,12 +16,10 @@ public:
         size_t _i;
         DynamicArray<T> *_s;
     public:
-        ArrayEnumerator(DynamicArray<T> *s) : _s(s), _i(0) {}
+        ArrayEnumerator(DynamicArray<T> *s) : _s(s), _i(-1) {}
         bool next() override {
-            if (_i == _s->length)
-                return false;
             _i++;
-            return true;
+            return _i < _s->length && _i > 0;
         }
         T& operator * () override { return (*_s)[_i]; }
     };
@@ -30,7 +28,7 @@ public:
     DynamicArray(T *items, size_t size);
     DynamicArray(const DynamicArray<T> &dynamicArray);
     ~DynamicArray();
-    IEnumerator<T>* getEnumerator() override;
+    std::shared_ptr<IEnumerator<T>> GetEnumerator() override;
     T Get(size_t index) const;
     T& operator[](size_t index);
     size_t GetLength() const;
@@ -77,8 +75,8 @@ DynamicArray<T> :: ~ DynamicArray() {
         delete [] array;
 }
 template <typename T>
-IEnumerator<T>* DynamicArray<T> :: getEnumerator() {
-    return new DynamicArray<T>::ArrayEnumerator(this);
+std::shared_ptr<IEnumerator<T>> DynamicArray<T> :: GetEnumerator() {
+    return std::shared_ptr<IEnumerator<T>>(new DynamicArray<T>::ArrayEnumerator(this));
 }
 
 
