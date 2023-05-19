@@ -65,6 +65,9 @@ public:
         }
         this->elements->Set(0, item);
     }
+    void Set(size_t index, T item) override {
+        elements->Set(index, item);
+    }
 /*    T& operator[] (const size_t& index) {
         if (index < 0 || index > this->elements->GetLength())
             throw std::out_of_range("IndexOutOfRange");
@@ -87,7 +90,6 @@ public:
         }
         return resSequence;
     }
-
 };
 
 #endif

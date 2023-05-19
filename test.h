@@ -105,7 +105,14 @@ TEST_F(DynamicArrayTest, DynamicArray_Get) {
         ASSERT_EQ(dc->Get(i), i + 1);
     }
 }
-
+TEST_F(DynamicArrayTest, DynamicArray_Enumerator) {
+    auto e = dc->getEnumerator();
+    int i = 1;
+    while (e->next()) {
+        ASSERT_EQ(*(*e), i++);
+    }
+    delete e;
+}
 struct LinkedListTests : public testing::Test {
     int size;
     LinkedList<int>** dc;

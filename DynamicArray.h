@@ -1,20 +1,38 @@
 #ifndef DYNAMIC_ARRAY_H
 #define DYNAMIC_ARRAY_H
 #include <iostream>
+#include <memory>
+#include "IEnumerable.h"
+#include "IEnumerator.h"
 //using namespace std;
 
 template <typename T>
-class DynamicArray {
+class DynamicArray : public IEnumerable<T> {
 protected:
     T *array;
     size_t length;
 public:
+    class ArrayEnumerator : public IEnumerator<T> {
+        size_t _i;
+        DynamicArray<T> *_s;
+    public:
+        ArrayEnumerator(DynamicArray<T> *s) : _s(s), _i(0) {}
+        bool next() override {
+            if (_i == _s->length)
+                return false;
+            _i++;
+            return true;
+        }
+        T& operator * () override { return (*_s)[_i]; }
+    };
     DynamicArray();
     DynamicArray(size_t size);
     DynamicArray(T *items, size_t size);
     DynamicArray(const DynamicArray<T> &dynamicArray);
     ~DynamicArray();
+    IEnumerator<T>* getEnumerator() override;
     T Get(size_t index) const;
+    T& operator[](size_t index);
     size_t GetLength() const;
     void Set(int index, T value);
     void Resize(int newSize);
@@ -58,9 +76,21 @@ DynamicArray<T> :: ~ DynamicArray() {
     if (array)
         delete [] array;
 }
+template <typename T>
+IEnumerator<T>* DynamicArray<T> :: getEnumerator() {
+    return new DynamicArray<T>::ArrayEnumerator(this);
+}
+
 
 template <typename T>
 T DynamicArray<T> :: Get(size_t index) const {
+    if (index < 0 || index >= this->length) {
+        throw std::out_of_range("IndexOutOfRange");
+    }
+    return array[index];
+}
+template <typename T>
+T& DynamicArray<T> :: operator[](size_t index) {
     if (index < 0 || index >= this->length) {
         throw std::out_of_range("IndexOutOfRange");
     }

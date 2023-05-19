@@ -212,16 +212,16 @@ void LinkedList<T> :: InsertAt(T item, size_t index) {
 template <typename T>
 inline bool LinkedList<T> :: operator==(const LinkedList<T> &rhs) const {
     Node<T> *nodeL = this->header, *nodeR = rhs.header;
-    size_t i = 0;
+//    size_t i = 0;
     while(nodeL != nullptr && nodeR != nullptr) {
-        std::cout << i++ << "   left:" << nodeL->GetValue() << "   right:" << nodeR->GetValue() << '\n';
+//        std::cout << i++ << "   left:" << nodeL->GetValue() << "   right:" << nodeR->GetValue() << '\n';
         if (nodeL->GetValue() != nodeR->GetValue())
             return false;
         nodeL = nodeL->GetNext();
         nodeR = nodeR->GetNext();
     }
     if (nodeL == nullptr && nodeR == nullptr) {
-        std::cout << "/* message */"<< i << '\n';
+//        std::cout << "/* message */"<< i << '\n';
         return true;
     }
     return false;

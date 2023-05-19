@@ -2,10 +2,9 @@
 #define ENUMERATOR_H
 
 template <class T> class IEnumerator {
-private:
-    size_t _i;
 public:
-    
-}
+    virtual bool next() = 0;
+    virtual T& operator * () = 0;
+};
 
 #endif
