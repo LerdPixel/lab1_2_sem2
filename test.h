@@ -491,25 +491,34 @@ TEST_F(LinkedListTests, LinkedList_InsertAt_edgeCase_3) {
 }
 struct SequenceTests : public testing::Test {
     int size;
+    int blockSize;
     Sequence<int>** dc;
     void SetUp() {
-        size = 6;
+        size = 12;
+        blockSize = 6;
         int a[] {1, 2, 3, 4, 5};
         int b[] {1};
         int c[] {};
-        int d[] {1, 2, 3, 5, 4};
+        int d[] {10, 20, 30};
         dc = new Sequence<int>* [size];
         dc[0] = new LinkedListSequence<int>(a, 5);
         dc[1] = new LinkedListSequence<int>(b, 1);
         dc[2] = new LinkedListSequence<int>();
         dc[3] = new LinkedListSequence<int>(a, 5);
         dc[4] = new LinkedListSequence<int>(b, 1);
-        dc[5] = new LinkedListSequence<int>(d, 5);
-    }
+        dc[5] = new LinkedListSequence<int>(d, 3);
+        dc[6] = new ArraySequence<int>(a, 5);
+        dc[7] = new ArraySequence<int>(b, 1);
+        dc[8] = new ArraySequence<int>();
+        dc[9] = new ArraySequence<int>(a, 5);
+        dc[10] = new ArraySequence<int>(b, 1);
+        dc[11] = new ArraySequence<int>(d, 3);    }
     void TearDown() {
         for (size_t i = 0; i < size; i++) {
-            delete dc[i];
+            if (dc[i])
+                delete dc[i];
         }
+        delete [] dc;
     }
 };
 int fun1(int x) {
@@ -518,27 +527,393 @@ int fun1(int x) {
 double fun2(int x) {
     return (double)x / 2.0;
 }
+int fun_sum(int x, int iter) {
+    return iter+x;
+}
+int fun_fibo(int x,int iter) {
+    return  2*x + iter;
+}
+TEST_F(SequenceTests, Sequence_Reduce_1) {
+    for (int i = 0; i < size; i += blockSize) {
+        int d1 = dc[0+i]->Reduce<int>(&fun_sum, 0);
+        ASSERT_EQ(d1, 15);
+    }
+}
+TEST_F(SequenceTests, Sequence_Reduce_2) {
+    for (int i = 0; i < size; i += blockSize) {
+        int d1 = dc[2+i]->Reduce<int>(&fun_sum, 0);
+        ASSERT_EQ(d1, 0);
+    }
+}
+TEST_F(SequenceTests, Sequence_Reduce_3) {
+    for (int i = 0; i < size; i += blockSize) {
+        int d1 = dc[5+i]->Reduce<int>(&fun_fibo, 0);
+        ASSERT_EQ(d1, 120);
+    }
+}
 TEST_F(SequenceTests, Sequence_Map_1) {
     int a [] {1, 2, 3};
     int b [] {1, 4, 9, 16, 25};
-    Sequence<int> *d1 = dc[0]->Map<LinkedListSequence<int>,int>(&fun1);
-    ASSERT_TRUE(*d1 == LinkedListSequence<int>(b, 5));
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[0+i]->Map<LinkedListSequence<int>,int>(&fun1);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>(b, 5));
+        delete d1;
+    }
 }
 TEST_F(SequenceTests, Sequence_Map_2) {
     double b [] {0.5, 1, 1.5, 2, 2.5};
-    Sequence<double> *d1 = dc[0]->Map<LinkedListSequence<double>,double>(&fun2);
-    ASSERT_TRUE(*d1 == LinkedListSequence<double>(b, 5));
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<double> *d1 = dc[0+i]->Map<LinkedListSequence<double>,double>(&fun2);
+        ASSERT_TRUE(*d1 == LinkedListSequence<double>(b, 5));
+        delete d1;
+    }
 }
 
 TEST_F(SequenceTests, Sequence_Map_3) {
     double b [] {};
-    Sequence<double> *d1 = dc[2]->Map<LinkedListSequence<double>,double>(&fun2);
-    ASSERT_TRUE(*d1 == LinkedListSequence<double>());
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<double> *d1 = dc[2+i]->Map<LinkedListSequence<double>,double>(&fun2);
+        ASSERT_TRUE(*d1 == LinkedListSequence<double>());
+        delete d1;
+    }
 }
-/*
-TEST_F(SequenceTests, Sequence_Reduce_1) {
-    double b [] {};
-    Sequence<double> *d1 = dc[2]->Map<LinkedListSequence<int>,double>(&fun2);
-    ASSERT_TRUE(*d1 == LinkedListSequence<double>());
+
+
+TEST_F(SequenceTests, LinkedList_Get_1) {
+    for (int i = 0; i < size; i += blockSize) {
+        ASSERT_EQ(dc[0+i]->Get(2), 3);
+    }
 }
-*/
+
+TEST_F(SequenceTests, LinkedList_Get_2) {
+    for (int i = 0; i < size; i += blockSize) {
+        ASSERT_EQ(dc[1+i]->Get(0), 1);
+    }
+}
+TEST_F(SequenceTests, Sequence_Get_3) {
+    for (int i = 0; i < size; i += blockSize) {
+        string str;
+        try {dc[2+i]->Get(0);}
+        catch(exception& e) {
+            str = e.what();
+        }
+        ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_Get_edgeCase1) {
+    for (int i = 0; i < size; i += blockSize) {
+    string str;
+    try {
+        dc[0+i]->Get(5);
+    } catch(exception& e) {
+        str = e.what();
+    }
+    ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+}
+}
+
+TEST_F(SequenceTests, Sequence_Get_edgeCase2) {
+    for (int i = 0; i < size; i += blockSize) {
+        string str;
+        try {dc[0+i]->Get(-1);}
+        catch(exception& e) {
+            str = e.what();
+        }
+        ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+
+
+
+TEST_F(SequenceTests, LinkedList_GetFirst_edgeCase1) {
+    for (int i = 0; i < size; i += blockSize) {
+    string str;
+    try {
+        dc[2+i]->GetFirst();
+    } catch(exception& e) {
+        str = e.what();
+    }
+    ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+
+TEST_F(SequenceTests, LinkedList_GetFirst_2) {
+    for (int i = 0; i < size; i += blockSize) {
+    ASSERT_EQ(dc[0+i]->GetFirst(), 1);
+    }
+}
+
+TEST_F(SequenceTests, LinkedList_GetLast_1) {
+    for (int k = 0; k < 2; ++k) {
+        for (int i = 0; i < size; i += blockSize) {
+        ASSERT_EQ(dc[k+i]->GetLast(), dc[k+i]->GetLength());
+        }
+    }
+}
+
+TEST_F(SequenceTests, LinkedList_GetLast_edgeCase1) {
+    for (int i = 0; i < size; i += blockSize) {
+    string str;
+    try {
+        dc[2+i]->GetLast();
+    } catch(exception& e) {
+        str = e.what();
+    }
+    ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_Operator_1) {
+    for (int i = 0; i < size; i += blockSize) {
+    string str;
+    try {
+        (*dc[2+i])[0];
+    } catch(exception& e) {
+        str = e.what();
+    }
+    ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_Operator_2) {
+    for (int i = 0; i < size; i += blockSize) {
+    string str;
+    try {
+        (*dc[0+i])[-1];
+    } catch(exception& e) {
+        str = e.what();
+    }
+    ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_Operator_3) {
+    for (int i = 0; i < size; i += blockSize) {
+        string str;
+        try {
+            (*dc[0+i])[5];
+        } catch(exception& e) {
+            str = e.what();
+        }
+        ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_Operator_4) {
+    for (int i = 0; i < size; i += blockSize) {
+        for (int j = 0; j < dc[0+i]->GetLength(); ++j) {
+            --(*dc[0+i])[j];
+            ASSERT_EQ(dc[0+i]->Get(j), j);
+        }
+    }
+}
+TEST_F(SequenceTests, Sequence_GetSubsequence_00) {
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[2+i]->GetSubsequence(0, 0);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>());
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_GetSubsequence_0) {
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[0+i]->GetSubsequence(3, 3);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>());
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_GetSubsequence_1) {
+    int a [] {1, 2, 3};
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[0+i]->GetSubsequence(0, 3);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>(a, 3));
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_GetSubsequence_2) {
+    int a [] {5};
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[0+i]->GetSubsequence(5, 4);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>(a, 1));
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_GetSubsequence_3) {
+    int a [] {5};
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[0+i]->GetSubsequence(0, 5);
+        ASSERT_TRUE(*d1 == *dc[0+i]);
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_GetSubsequence_4) {
+    for (int i = 0; i < size; i += blockSize) {
+        string str;
+        try {
+            dc[0+i]->GetSubsequence(-1, 6);
+        } catch(exception& e) {
+            str = e.what();
+        }
+        ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_GetSubsequence_5) {
+    for (int i = 0; i < size; i += blockSize) {
+        string str;
+        try {
+            dc[0+i]->GetSubsequence(-1, 2);
+        } catch(exception& e) {
+            str = e.what();
+        }
+        ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_GetSubsequence_6) {
+    for (int i = 0; i < size; i += blockSize) {
+        string str;
+        try {
+            dc[0+i]->GetSubsequence(5, 6);
+        } catch(exception& e) {
+            str = e.what();
+        }
+        ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_GetLength_1) {
+    for (int i = 0; i < size; i += blockSize) {
+        ASSERT_EQ(dc[0+i]->GetLength(), 5);
+    }
+}
+TEST_F(SequenceTests, Sequence_GetLength_2) {
+    for (int i = 0; i < size; i += blockSize) {
+        ASSERT_EQ(dc[1+i]->GetLength(), 1);
+    }
+}
+TEST_F(SequenceTests, Sequence_GetLength_3) {
+    for (int i = 0; i < size; i += blockSize) {
+        ASSERT_EQ(dc[2+i]->GetLength(), 0);
+    }
+}
+TEST_F(SequenceTests, Sequence_GetLength_4) {
+    for (int i = 0; i < size; i += blockSize) {
+        ASSERT_EQ(dc[3+i]->GetLength(), 5);
+    }
+}
+TEST_F(SequenceTests, Sequence_GetLength_5) {
+    for (int i = 0; i < size; i += blockSize) {
+        ASSERT_EQ(dc[4+i]->GetLength(), 1);
+    }
+}
+TEST_F(SequenceTests, Sequence_Append_0) {
+    int a [] {10, 20, 30, 4};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[5+i]->Append(4);
+        ASSERT_TRUE(*dc[5+i] == LinkedListSequence<int>(a, 4));
+    }
+}
+TEST_F(SequenceTests, Sequence_Append_1) {
+    int a [] {10, 20, 30, 4, 5};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[5+i]->Append(4);
+        dc[5+i]->Append(5);
+        ASSERT_TRUE(*dc[5+i] == LinkedListSequence<int>(a, 5));
+    }
+}
+TEST_F(SequenceTests, Sequence_Append_2) {
+    int a [] {10};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[2+i]->Append(10);
+        ASSERT_TRUE(*dc[2+i] == LinkedListSequence<int>(a, 1));
+    }
+}
+TEST_F(SequenceTests, Sequence_Prepend_0) {
+    int a [] {4,10, 20, 30};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[5+i]->Prepend(4);
+        ASSERT_TRUE(*dc[5+i] == LinkedListSequence<int>(a, 4));
+    }
+}
+TEST_F(SequenceTests, Sequence_Prepend_1) {
+    int a [] {5,4,10, 20, 30};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[5+i]->Prepend(4);
+        dc[5+i]->Prepend(5);
+        ASSERT_TRUE(*dc[5+i] == LinkedListSequence<int>(a, 5));
+    }
+}
+TEST_F(SequenceTests, Sequence_Prepend_2) {
+    int a [] {10};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[2+i]->Prepend(10);
+        ASSERT_TRUE(*dc[2+i] == LinkedListSequence<int>(a, 1));
+    }
+}
+TEST_F(SequenceTests, Sequence_InsertAt_1) {
+    int a [] {10};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[2+i]->InsertAt(10, 0);
+        ASSERT_TRUE(*dc[2+i] == LinkedListSequence<int>(a, 1));
+    }
+}
+TEST_F(SequenceTests, Sequence_InsertAt_2) {
+    int a [] {10, 1};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[1+i]->InsertAt(10, 0);
+        ASSERT_TRUE(*dc[1+i] == LinkedListSequence<int>(a, 2));
+    }
+}
+TEST_F(SequenceTests, Sequence_InsertAt_3) {
+    int a [] {1, 10};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[1+i]->InsertAt(10, 1);
+        ASSERT_TRUE(*dc[1+i] == LinkedListSequence<int>(a, 2));
+    }
+}
+TEST_F(SequenceTests, Sequence_InsertAt_4) {
+    int a [] {1,2,10,3,4,5};
+    for (int i = 0; i < size; i += blockSize) {
+        dc[0+i]->InsertAt(10, 2);
+        ASSERT_TRUE(*dc[0+i] == LinkedListSequence<int>(a, 6));
+    }
+}
+TEST_F(SequenceTests, Sequence_InsertAt_6) {
+    for (int i = 0; i < size; i += blockSize) {
+        string str;
+        try {
+            dc[0+i]->InsertAt(10, -1);
+        } catch(exception& e) {
+            str = e.what();
+        }
+        ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_InsertAt_7) {
+    for (int i = 0; i < size; i += blockSize) {
+        string str;
+        try {
+            dc[0+i]->InsertAt(10, 6);
+        } catch(exception& e) {
+            str = e.what();
+        }
+        ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
+    }
+}
+TEST_F(SequenceTests, Sequence_Concat_1) {
+    int a [] {1,2,3,4,5,10,20,30};
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int>* d1 = dc[0+i]->Concat<LinkedListSequence<int> >(dc[5+i]);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>(a, 8));
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_Concat_2) {
+    int a [] {1,2,3,4,5};
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int>* d1 = dc[0+i]->Concat<LinkedListSequence<int> >(dc[2+i]);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>(a, 5));
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_Concat_3) {
+    int a [] {10,20,30};
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int>* d1 = dc[2+i]->Concat<LinkedListSequence<int> >(dc[5+i]);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>(a, 3));
+        delete d1;
+    }
+}

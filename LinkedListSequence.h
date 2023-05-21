@@ -1,5 +1,6 @@
 #ifndef LINKED_LIST_SEQUENCE_H
 #define LINKED_LIST_SEQUENCE_H
+#include <memory>
 #include "LinkedList.h"
 #include "Sequence.h"
 
@@ -25,8 +26,9 @@ public:
     LinkedListSequence(LinkedList<T> &list) {
         this->elements = new LinkedList<T>(list);
     }
-    std::shared_ptr<IEnumerator<T>> GetEnumerator() {
-        return elements->GetEnumerator();
+    ~LinkedListSequence() {
+        if (elements)
+            delete elements;
     }
     T GetFirst() const override {
         return elements->GetFirst();
@@ -37,17 +39,17 @@ public:
     T Get(size_t index) const override {
         return elements->Get(index);
     }
-    T& operator[] (const size_t index) override {
-        return (*elements)[index];
+    std::shared_ptr<IEnumerator<T>> GetEnumerator() override {
+        return elements->GetEnumerator();
     }
-    Sequence<T>* GetSubsequence(size_t startIndex, size_t endIndex) override {
+    Sequence<T>* GetSubsequence(size_t startIndex, size_t endIndex) const override {
         LinkedList<T> *list = elements->GetSubList(startIndex, endIndex);
         LinkedListSequence<T> *res = new LinkedListSequence<T>(*list);
         delete list;
         return res;
     }
     size_t GetLength() const override {
-        return elements->GetLength();
+        return this->elements->GetLength();
     }
     void Append(T item) override {
         elements->Append(item);
@@ -55,30 +57,12 @@ public:
     void Prepend(T item) override {
         elements->Prepend(item);
     }
-    void Set(size_t index, T item) override {
-        elements->Set(index, item);
+    T& operator[] (const size_t index) override {
+        return (*elements)[index];
     }
-/*    T& operator[] (const size_t& index) {
-        if (index < 0 || index > this->elements->GetLength())
-            throw std::out_of_range("IndexOutOfRange");
-        return this->elements->Get(index);
-    }*/
     void InsertAt(T item, size_t index) override {
-        elements->InsertAt(index, item);
+        elements->InsertAt(item, index);
     }
-    Sequence <T>* Concat(Sequence <T> *sequence) const override {
-        return nullptr;
-    }
-    /*Sequence <T2>* map(T2*f(T)) const {
-        auto e = new GetEnumerator();
-        LinkedListSequence<T2> *resSequence = new LinkedListSequence<T2>();
-        while (e->next()) {
-            resSequence->Append(f(*(*e)));
-        }
-        delete e;
-        return resSequence;
-    }
-    */
 };
 
 #endif

@@ -2,6 +2,7 @@
 *.d
 c
 cpp
+test
 
 # Compiled Object files
 *.slo

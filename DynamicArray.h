@@ -19,7 +19,7 @@ public:
         ArrayEnumerator(DynamicArray<T> *s) : _s(s), _i(-1) {}
         bool next() override {
             _i++;
-            return _i < _s->length && _i > 0;
+            return _i < _s->length && _i >= 0;
         }
         T& operator * () override { return (*_s)[_i]; }
     };
