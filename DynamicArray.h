@@ -11,6 +11,7 @@ class DynamicArray : public IEnumerable<T> {
 protected:
     T *array;
     size_t length;
+    size_t realSize;
 public:
     class ArrayEnumerator : public IEnumerator<T> {
         size_t _i;
@@ -33,38 +34,45 @@ public:
     T& operator[](size_t index);
     size_t GetLength() const;
     void Set(int index, T value);
-    void Resize(int newSize);
+    void Resize(size_t newSize);
+    void Resize(size_t newSize, size_t realSize);
+    void ExpandingResize(size_t newSize);
+    void AddSize(size_t adding);
 };
 
 template <typename T>
 DynamicArray<T> :: DynamicArray() {
-    this->length = 0;
-    this->array = nullptr;
+    length = 0;
+    realSize = 0;
+    array = nullptr;
 }
 template <typename T>
 DynamicArray<T> :: DynamicArray(size_t size) {
     if (size < 0)
         throw std::length_error("Size can't be negative");
-    this->length = size;
-    this->array = new T [size];
+    length = size;
+    realSize = size;
+    array = new T [size];
 }
 template <typename T>
 DynamicArray<T> :: DynamicArray(T *items, size_t size) {
     if (size < 0)
         throw std::length_error("Size can't be negative");
-    this->length = size;
-    this->array = new T [size];
+    length = size;
+    realSize = size;
+    array = new T [size];
     for (size_t i = 0; i < size; ++i) {
-        this->array[i] = items[i];
+        array[i] = items[i];
     }
 }
 template <typename T>
 DynamicArray<T> :: DynamicArray(const DynamicArray<T> &dynamicArray) {
-    int length = dynamicArray.GetLength();
-    this->array = new T [length];
+    size_t length = dynamicArray.GetLength();
+    array = new T [length];
     for (size_t i = 0; i < length; ++i) {
-        this->array[i] = dynamicArray.Get(i);
+        array[i] = dynamicArray.Get(i);
     }
+    realSize = length;
     this->length = length;
 }
 
@@ -109,7 +117,7 @@ size_t DynamicArray<T> :: GetLength() const {
 }
 
 template <typename T>
-void DynamicArray<T> :: Resize(int newSize) {
+void DynamicArray<T> :: Resize(size_t newSize) {
     if (newSize < 0)
         throw std::length_error("Size can't be negative");
     T *array = new T [newSize];
@@ -121,8 +129,57 @@ void DynamicArray<T> :: Resize(int newSize) {
         array[i] = 0;
     }
     delete [] this->array;
+    this->realSize = newSize;
     this->array = array;
     this->length = newSize;
 }
+template <typename T>
+void DynamicArray<T> :: Resize(size_t newSize, size_t realSize) {
+    if (newSize < 0 || realSize < 0 || newSize > realSize)
+        throw std::length_error("Size can't be negative");
+    T *array = new T [realSize];
+    size_t i;
+    for (i = 0; i < (newSize < this->length ? newSize : this->length); ++i) {
+        array[i] = this->array[i];
+    }
+    for ( ; i < newSize; ++i) {
+        array[i] = 0;
+    }
+    delete [] this->array;
+    this->realSize = realSize;
+    this->array = array;
+    this->length = newSize;
+}
+
+
+template <typename T>
+void DynamicArray<T> :: ExpandingResize(size_t newSize) {
+    if (newSize < 0)
+        throw std::length_error("Size can't be negative");
+    if (newSize <= realSize) {
+        length = newSize;
+    }
+    else {
+        AddSize(newSize-length);
+    }
+}
+
+template <typename T>
+void DynamicArray<T> :: AddSize(size_t adding) {
+    if (adding < 0)
+        throw std::length_error("Size can't be negative");
+    size_t newLength = adding + length;
+    if (newLength <= realSize) {
+        length = newLength;
+    }
+    else {
+        size_t newRealSize = realSize > 0 ? realSize : 1;
+        while (newLength > newRealSize) {
+            newRealSize *= 2;
+        }
+        Resize(newLength, newRealSize);
+    }
+}
+
 
 #endif

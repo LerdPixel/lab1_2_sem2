@@ -7,10 +7,11 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <chrono>
 using namespace std;
 
 struct DynamicArrayTests : public testing::Test {
-    int size;
+    size_t size;
     DynamicArray<int>** dc;
     void SetUp() {
         size = 3;
@@ -25,7 +26,8 @@ struct DynamicArrayTests : public testing::Test {
     }
     void TearDown() {
         for (size_t i = 0; i < size; i++) {
-            delete dc[i];
+            if (dc[i])
+                delete dc[i];
         }
         delete [] dc;
     }
@@ -820,6 +822,26 @@ TEST_F(SequenceTests, Sequence_Append_2) {
         dc[2+i]->Append(10);
         ASSERT_TRUE(*dc[2+i] == LinkedListSequence<int>(a, 1));
     }
+}
+TEST_F(SequenceTests, DynamicArray_Append) {
+    int a [] {10};
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 1000; i++) {
+        dc[8]->Append(10);
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+}
+TEST_F(SequenceTests, DynamicArray_Prepend) {
+    int a [] {10};
+    auto start = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 1000; i++) {
+        dc[8]->Prepend(10);
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
 }
 TEST_F(SequenceTests, Sequence_Prepend_0) {
     int a [] {4,10, 20, 30};
