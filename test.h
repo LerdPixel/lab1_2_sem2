@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
+#include "ICollection.h"
 #include "DynamicArray.h"
 #include "LinkedList.h"
 #include "LinkedListSequence.h"
 #include "ArraySequence.h"
 #include "Sequence.h"
-#include <vector>
 #include <memory>
 #include <string>
 #include <chrono>
@@ -49,11 +49,11 @@ TEST_F(DynamicArrayTests, DynamicArray_Get2) {
         ASSERT_STREQ("IndexOutOfRange", e.what());
     }
 }
-/*
-TEST_F(DynamicArrayTests, DynamicArray_GetFirst) {
-    ASSERT_EQ(dc[0]->GetFirst(), 1);
-    ASSERT_EQ(dc[2]->GetFirst(), 1);
-}*/
+TEST_F(DynamicArrayTests, DynamicArray_and_ICollection) {
+    LinkedList<int>* l = new LinkedList<int>(*dc[0]);
+    ASSERT_TRUE(*l==*dc[0]);
+    delete l;
+}
 struct DynamicArrayTest : public testing::Test {
     DynamicArray<int> *dc;
     void SetUp() {

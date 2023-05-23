@@ -1,9 +1,10 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 #include "Node.h"
+#include "ICollection.h"
 
 template <typename T>
-class LinkedList : public IEnumerable<T> {
+class LinkedList : public IEnumerable<T>, public ICollection<T> {
 protected:
     Node<T> *header;
 private:
@@ -33,14 +34,15 @@ public:
     LinkedList(T *items, size_t size);
     LinkedList(const LinkedList<T> &list);
     LinkedList(Node<T>* head);
+    LinkedList(const ICollection<T> &collection);
     ~LinkedList();
     std::shared_ptr<IEnumerator<T>> GetEnumerator() override;
     T GetFirst() const;
     T GetLast() const;
-    T Get(size_t index) const;
+    T Get(size_t index) const override;
     T& operator[](size_t index);
     LinkedList<T> *GetSubList(size_t startIndex, size_t endIndex) const;
-    size_t GetLength() const;
+    size_t GetLength() const override;
     void Append(T item);
     void Prepend(T item);
     void InsertAt(T item, size_t index);
@@ -89,6 +91,21 @@ LinkedList<T> :: LinkedList(Node<T>* head) {
     header = head;
     while (head != nullptr) {
         head = head->GetNext();
+    }
+}
+template <typename T>
+LinkedList<T> :: LinkedList(const ICollection<T> &collection) {
+    size_t length = collection.GetLength();
+    if (length == 0) {
+        header = nullptr;
+    }
+    else {
+        header = new Node<T>(collection.Get(0), nullptr);
+        Node<T> *nodeRing = header;
+        for (size_t i = 1; i < length; ++i) {
+            nodeRing->SetNext(new Node<T>(collection.Get(i), nullptr));
+            nodeRing = nodeRing->GetNext();
+        }
     }
 }
 template <typename T>

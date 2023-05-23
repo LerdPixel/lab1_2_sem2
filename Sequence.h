@@ -2,17 +2,18 @@
 #define SEQUENCE_H
 #include "IEnumerator.h"
 #include "IEnumerable.h"
+#include "ICollection.h"
 
 template <class T>
-class Sequence : public IEnumerable<T>{
+class Sequence : public IEnumerable<T>, public ICollection<T> {
 public:
     virtual ~Sequence() {}
     virtual T GetFirst() const = 0;
     virtual T GetLast() const = 0;
-    virtual T Get(size_t index) const = 0;
+    virtual T Get(size_t index) const override = 0;
     virtual T& operator[] (const size_t index) = 0;
     virtual Sequence<T>* GetSubsequence(size_t startIndex, size_t endIndex) const = 0;
-    virtual size_t GetLength() const = 0;
+    virtual size_t GetLength() const override = 0;
     virtual void Append(T item) = 0;
     virtual void Prepend(T item) = 0;
     virtual void InsertAt(T item, size_t index) = 0;
@@ -25,20 +26,6 @@ public:
             resSequence->Append(*(*e));
         }
         return resSequence;
-    }
-    bool operator==(const Sequence<T> &rhs) const {
-        size_t leftLen = GetLength();
-//        std::cout << "==start=="<<GetLength()<<"  "<< rhs.GetLength() << '\n';
-        if (leftLen != rhs.GetLength()) {
-            return false;
-        }
-//        std::cout << "  len ok" << '\n';
-        for (size_t i = 0; i < leftLen; i++) {
-//            std::cout << i << "   left:" << Get(i) << "   right:" << rhs.Get(i) << '\n';
-            if (Get(i) != rhs.Get(i))
-                return false;
-        }
-        return true;
     }
     template <class T_SEQ, class T2>
     Sequence <T2>* Map(T2 (*f)(T)) {

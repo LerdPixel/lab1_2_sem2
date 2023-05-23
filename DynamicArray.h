@@ -4,10 +4,11 @@
 #include <memory>
 #include "IEnumerable.h"
 #include "IEnumerator.h"
+#include "ICollection.h"
 //using namespace std;
 
 template <typename T>
-class DynamicArray : public IEnumerable<T> {
+class DynamicArray : public IEnumerable<T>, public ICollection<T> {
 protected:
     T *array;
     size_t length;
@@ -28,11 +29,12 @@ public:
     DynamicArray(size_t size);
     DynamicArray(T *items, size_t size);
     DynamicArray(const DynamicArray<T> &dynamicArray);
+    DynamicArray(const ICollection<T> &collection);
     ~DynamicArray();
     std::shared_ptr<IEnumerator<T>> GetEnumerator() override;
-    T Get(size_t index) const;
+    T Get(size_t index) const override;
     T& operator[](size_t index);
-    size_t GetLength() const;
+    size_t GetLength() const override;
     void Set(int index, T value);
     void Resize(size_t newSize);
     void Resize(size_t newSize, size_t realSize);
@@ -71,6 +73,16 @@ DynamicArray<T> :: DynamicArray(const DynamicArray<T> &dynamicArray) {
     array = new T [length];
     for (size_t i = 0; i < length; ++i) {
         array[i] = dynamicArray.Get(i);
+    }
+    realSize = length;
+    this->length = length;
+}
+template <typename T>
+DynamicArray<T> :: DynamicArray(const ICollection<T> &collection) {
+    size_t length = collection.GetLength();
+    array = new T [length];
+    for (size_t i = 0; i < length; ++i) {
+        array[i] = collection.Get(i);
     }
     realSize = length;
     this->length = length;
