@@ -48,6 +48,17 @@ public:
         }
         return iter;
     }
+    template <class T_SEQ>
+    Sequence<T>* Where(bool (*f)(T)) {
+        IEnumerable<T> *base = this;
+        auto e = base->GetEnumerator();
+        T_SEQ *resSequence = new T_SEQ();
+        while (e->next()) {
+            if (f(*(*e)))
+                resSequence->Append(*(*e));
+        }
+        return resSequence;
+    }
 };
 
 #endif

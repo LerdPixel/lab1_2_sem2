@@ -579,7 +579,35 @@ TEST_F(SequenceTests, Sequence_Map_3) {
         delete d1;
     }
 }
-
+bool fun_del(int x) {
+    return x % 2;
+}
+bool fun_isEq(int x) {
+    return x == 10;
+}
+TEST_F(SequenceTests, Sequence_Where_1) {
+    int a [] {1, 3, 5};
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[0+i]->Where<LinkedListSequence<int>>(&fun_del);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>(a, 3));
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_Where_2) {
+    int a [] {10};
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[5+i]->Where<LinkedListSequence<int>>(&fun_isEq);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>(a, 1));
+        delete d1;
+    }
+}
+TEST_F(SequenceTests, Sequence_Where_3) {
+    for (int i = 0; i < size; i += blockSize) {
+        Sequence<int> *d1 = dc[0+i]->Where<LinkedListSequence<int>>(&fun_isEq);
+        ASSERT_TRUE(*d1 == LinkedListSequence<int>());
+        delete d1;
+    }
+}
 
 TEST_F(SequenceTests, LinkedList_Get_1) {
     for (int i = 0; i < size; i += blockSize) {
