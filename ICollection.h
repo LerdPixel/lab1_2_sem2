@@ -15,7 +15,7 @@ public:
 //        std::cout << "  len ok" << '\n';
         for (size_t i = 0; i < leftLen; i++) {
 //            std::cout << i << "   left:" << Get(i) << "   right:" << rhs.Get(i) << '\n';
-            if (Get(i) != rhs.Get(i))
+            if (! ( Get(i) == rhs.Get(i)) )
                 return false;
         }
         return true;

@@ -16,15 +16,25 @@ public:
     LinkedListSequence(T* items, size_t count) {
         this->elements = new LinkedList<T>(items, count);
     }
-    LinkedListSequence(Sequence<T> *sequence) {
+    LinkedListSequence(const Sequence<T> *sequence) {
         size_t length = sequence->GetLength();
         this->elements = new LinkedList<T>();
         for (size_t i = 0; i < length; ++i) {
             elements->Append(sequence->Get(i));
         }
     }
-    LinkedListSequence(LinkedList<T> &list) {
+    LinkedListSequence(const Sequence<T> &sequence) {
+        size_t length = sequence.GetLength();
+        this->elements = new LinkedList<T>();
+        for (size_t i = 0; i < length; ++i) {
+            elements->Append(sequence.Get(i));
+        }
+    }
+    LinkedListSequence(const LinkedList<T> &list) {
         this->elements = new LinkedList<T>(list);
+    }
+    LinkedListSequence(const ICollection<T> &collection) {
+        this->elements = new LinkedList<T>(collection);
     }
     ~LinkedListSequence() {
         if (elements)

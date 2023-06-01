@@ -1,9 +1,6 @@
 #include <iostream>
 #include <gtest/gtest.h>
-#include "DynamicArray.h"
-#include "ArraySequence.h"
-#include "LinkedListSequence.h"
-#include "test.h"
+#include "all_tests_headers.h"
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);

@@ -15,7 +15,7 @@ public:
     ArraySequence(T* items, size_t count) {
         this->elements = new DynamicArray<T>(items, count);
     }
-    ArraySequence(Sequence<T> *sequence) {
+    ArraySequence(const Sequence<T> *sequence) {
         size_t length = sequence->GetLength();
         T array[length];
         for (size_t i = 0; i < length; i++) {
@@ -23,8 +23,19 @@ public:
         }
         this->elements = new DynamicArray<T>(array, length);
     }
-    ArraySequence(DynamicArray<T> &dynamicArray) {
+    ArraySequence(const Sequence<T> &sequence) {
+        size_t length = sequence.GetLength();
+        T array[length];
+        for (size_t i = 0; i < length; i++) {
+            array[i] = sequence.Get(i);
+        }
+        this->elements = new DynamicArray<T>(array, length);
+    }
+    ArraySequence(const DynamicArray<T> &dynamicArray) {
         this->elements = new DynamicArray<T>(dynamicArray);
+    }
+    ArraySequence(const ICollection<T> &collection) {
+        this->elements = new DynamicArray<T>(collection);
     }
     ~ArraySequence() {
         if (elements)

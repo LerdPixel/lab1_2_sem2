@@ -1,10 +1,12 @@
+#ifndef TEST_H
+#define TEST_H
 #include <gtest/gtest.h>
-#include "ICollection.h"
-#include "DynamicArray.h"
-#include "LinkedList.h"
-#include "LinkedListSequence.h"
-#include "ArraySequence.h"
-#include "Sequence.h"
+#include "../ICollection.h"
+#include "../DynamicArray.h"
+#include "../LinkedList.h"
+#include "../LinkedListSequence.h"
+#include "../ArraySequence.h"
+#include "../Sequence.h"
 #include <memory>
 #include <string>
 #include <chrono>
@@ -967,3 +969,4 @@ TEST_F(SequenceTests, Sequence_Concat_3) {
         delete d1;
     }
 }
+#endif

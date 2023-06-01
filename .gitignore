@@ -3,6 +3,7 @@
 c
 cpp
 test
+all_tests_headers.h
 
 # Compiled Object files
 *.slo
