@@ -1,6 +1,7 @@
 #ifndef MATH_VECTOR_H
 #define MATH_VECTOR_H
 #include "ArraySequence.h"
+#include <memory>
 
 template <class T>
 class MathVector {
@@ -11,6 +12,7 @@ protected:
             return "Different MathVector Dimensions";
         }
     };
+    typedef std::shared_ptr<Sequence<T>> MVectorPtr;
     class VectorDimension1 : public std::exception {
     public:
         const char * what () const noexcept override {
@@ -23,30 +25,30 @@ protected:
             return "MathVector Dimensions must be 3";
         }
     };
-    Sequence<T> *values;
+    MVectorPtr values;
 public:
     MathVector() {
-        throw VectorDimension1();
     }
     MathVector(const ICollection<T> &collection) {
         if (collection.GetLength() == 0)
             throw VectorDimension1();
-        this->values = new ArraySequence<T>(collection);
+        values = MVectorPtr(new ArraySequence<T>(collection));
     }
     MathVector(const Sequence<T> &values) {
         if (values.GetLength() == 0)
             throw VectorDimension1();
-        this->values = new ArraySequence<T>(values);
+        this->values = MVectorPtr(new ArraySequence<T>(values));
     }
     MathVector(ICollection<T> *collection) {
         if (collection->GetLength() == 0)
             throw VectorDimension1();
-        this->values = new ArraySequence<T>(*collection);
+        values = MVectorPtr(new ArraySequence<T>(*collection));
     }
-    ~MathVector() {
-        if (values)
-            delete values;
+    MathVector(const MathVector<T>& mathvector) {
+        values = MVectorPtr(new ArraySequence<T>(*mathvector.values));
     }
+    ~MathVector() {}
+
     size_t GetDimension() const {
         return values->GetLength();
     }
@@ -108,7 +110,7 @@ public:
         if (GetDimension() != 3 || rhs.GetDimension() != 3) {
             throw VectorDimension3();
         }
-        T array[] {Get(1) * rhs.Get(2) - Get(2) * rhs.Get(1), Get(0) * rhs.Get(2) - Get(2) * rhs.Get(0), Get(0) * rhs.Get(1) - Get(1) * rhs.Get(0)};
+        T array[] {Get(1) * rhs.Get(2) - Get(2) * rhs.Get(1), - Get(0) * rhs.Get(2) + Get(2) * rhs.Get(0), Get(0) * rhs.Get(1) - Get(1) * rhs.Get(0)};
         return MathVector(DynamicArray(array, 3));
     }
     MathVector operator*(T value) const {

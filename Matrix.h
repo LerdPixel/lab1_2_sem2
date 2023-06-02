@@ -2,6 +2,7 @@
 #define MATRIX_H
 #include "MathVector.h"
 #include "Complex.h"
+#include <memory>
 
 template <typename T>
 void prtSeq(Sequence<T>* a) {
@@ -13,7 +14,8 @@ void prtSeq(Sequence<T>* a) {
 template <class T>
 class Matrix {
 protected:
-    Sequence<T> *values;
+    typedef std::shared_ptr<Sequence<T>> SequencePtr;
+    SequencePtr values;
     size_t _l;
     size_t _h;
     class MatrixDimension : public std::exception {
@@ -32,16 +34,12 @@ public:
     Matrix() {
         _l = 0;
         _h = 0;
-        values = new ArraySequence<T>();
-//        prtSeq(values);
-        std::cout<<"Matrix() : " << _l << "  _h = " << _h << '\n';
+        values = SequencePtr(new ArraySequence<T>());
     }
     Matrix(const Matrix<T> &matrix) {
-        values = new ArraySequence<T>(*matrix.values);
+        values = SequencePtr(new ArraySequence<T>(*matrix.values));
         _l = matrix._l;
         _h = matrix._h;
-//        prtSeq(values);
-        std::cout<<"Matrix(matrix) : " << _l << "  _h = " << _h << '\n';
     }
     Matrix(const ICollection<T> &collection, size_t l, size_t h) {
         if (collection.GetLength() != l * h)
@@ -54,16 +52,16 @@ public:
             _l = l;
             _h = h;
         }
-        this->values = new ArraySequence<T>(collection);
-//        prtSeq(values);
-        std::cout<<"Matrix(collection) : " << _l << "  _h = " << _h << '\n';
+        this->values = SequencePtr(new ArraySequence<T>(collection));
     }
-    ~Matrix() {
-//        prtSeq(values);
-
-        if (values)
-            delete values;
+    Matrix(const ICollection<T> &collection, size_t a) {
+        if (collection.GetLength() != a * a)
+            throw MatrixDimension();
+        _l = a;
+        _h = a;
+        this->values = SequencePtr(new ArraySequence<T>(collection));
     }
+    ~Matrix() {}
     Matrix<T> operator+(const Matrix &rhs) const {
         size_t length = values->GetLength();
         if (length != rhs.values->GetLength() || _l != rhs._l || _h != rhs._h) {
@@ -148,6 +146,15 @@ public:
     Matrix<T> operator*(const T value) const {
         return MultScal(value);
     }
+    template <typename T2>
+    Matrix<T> operator*(T2 value) const {
+        size_t length = values->GetLength();
+        DynamicArray<T> resValues = DynamicArray<T>(length);
+        for (int i = 0; i < length; ++i) {
+            resValues[i] = values->Get(i) * value;
+        }
+        return Matrix<T>(resValues, _l, _h);
+    }
     Matrix<T> operator*(const MathVector<T> &rhs) const {
         if (_l != rhs.GetDimension())
             throw MatrixDimension();
@@ -170,5 +177,5 @@ Matrix<T1> operator*(T1 value, const Matrix<T1> &rhs) {
     return rhs.MultScal(value);
 }
 
-
+typedef std::shared_ptr<Matrix<double>> DMatrixPtr;
 #endif

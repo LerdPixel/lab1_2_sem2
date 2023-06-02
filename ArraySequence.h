@@ -37,6 +37,7 @@ public:
     ArraySequence(const ICollection<T> &collection) {
         this->elements = new DynamicArray<T>(collection);
     }
+    ArraySequence(const ArraySequence<T> &) = delete;
     ~ArraySequence() {
         if (elements)
             delete elements;

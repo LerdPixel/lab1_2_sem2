@@ -1,6 +1,8 @@
 #ifndef POLYNOMIAL_H
 #define POLYNOMIAL_H
 #include "LinkedListSequence.h"
+#include <memory>
+
 
 template <class T>
 class Polynomial {
@@ -11,10 +13,11 @@ protected:
             return "PolynomialWithoutDegree";
         }
     };
-    Sequence<T> *coefficients;
-    Polynomial<T> sumWithSortedDegrees(const Polynomial<T> &rhs) {
+    typedef std::shared_ptr<Sequence<T>> SharedCoefficients;
+    SharedCoefficients coefficients;
+    Polynomial<T> sumWithSortedDegrees(const Polynomial<T> &rhs) const {
         size_t i;
-        size_t minDegree = rhs.values->GetLength();
+        size_t minDegree = rhs.coefficients->GetLength();
         size_t maxDegree = coefficients->GetLength();
         LinkedListSequence<T> resCoefficients = LinkedListSequence<T>();
         for (i = 0; i < minDegree; ++i) {
@@ -28,41 +31,35 @@ protected:
     void zeroCutter() {
         int i;
         for (i = coefficients->GetLength() - 1; i > 0; --i) {
-            if(! ( coefficients->Get(i) == (coefficients->Get(i) * 0) ) )
+            if(! ( coefficients->Get(i) == (-coefficients->Get(i)) ) )
                 break;
         }
         if (i != coefficients->GetLength() - 1) {
-            Sequence<T> *t = coefficients;
-            coefficients = coefficients->GetSubsequence(0, i + 1);
-            delete t;
+            coefficients = SharedCoefficients(coefficients->GetSubsequence(0, i + 1));
         }
     }
 public:
     Polynomial(const ICollection<T> &values) {
         if (values.GetLength() == 0)
             throw PolynomialNotDegree();
-        coefficients = new LinkedListSequence<T>(values);
-//        zeroCutter();
+        coefficients = SharedCoefficients(new LinkedListSequence<T>(values));
+        zeroCutter();
     }
     Polynomial(ICollection<T> *values) {
         if (values->GetLength() == 0)
             throw PolynomialNotDegree();
-        coefficients = new LinkedListSequence<T>(*values);
-//        zeroCutter();
+        coefficients = SharedCoefficients(new LinkedListSequence<T>(*values));
+        zeroCutter();
     }
     Polynomial(const Polynomial<T> &polyn) {
-        coefficients = new LinkedListSequence<T>(*polyn.coefficients);
+        coefficients = SharedCoefficients(new LinkedListSequence<T>(*polyn.coefficients));
     }
     Polynomial() {
         //throw PolynomialNotDegree();
     }
     Polynomial(T value) {
         T array[] = {value};
-        coefficients = new LinkedListSequence<T>(array, 1);
-    }
-    ~Polynomial() {
-        if (coefficients)
-            delete coefficients;
+        coefficients = SharedCoefficients(new LinkedListSequence<T>(array, 1));
     }
     size_t GetLength() const {
         return coefficients->GetLength();
@@ -107,14 +104,22 @@ public:
         }
         return Polynomial<T>(res);
     }
-    T calculation(T value) { // calculated by Horner's method
+    Polynomial<T> operator-() const {
+        int len = GetLength();
+        DynamicArray<T> res = DynamicArray<T>(len);
+        for (int i = 0; i < GetLength(); ++i) {
+            res[i] = -coefficients->Get(i);
+        }
+        return Polynomial<T>(res);
+    }
+    T Calculation(T value) { // calculated by Horner's method
         T res = value * 0;
         for (int i = GetDegree(); i >= 0; --i) {
             res = res * value + coefficients->Get(i);
         }
         return res;
     }
-    Polynomial<T> composition(const Polynomial<T> &polyn2) {
+    Polynomial<T> Composition(const Polynomial<T> &polyn2) {
         Polynomial<T> res(coefficients->Get(0) * 0);
         for (int i = GetDegree(); i >= 0; --i) {
             res = res * polyn2 + Polynomial<T>(coefficients->Get(i));

@@ -47,9 +47,6 @@ struct MatrixTests : public testing::Test {
         delete [] dc;
     }
 };
-TEST_F(MatrixTests, MatrixTests_equal_construct_0) {
-    ASSERT_EQ(0, 0);
-}
 
 TEST_F(MatrixTests, MatrixTests_equal_construct_1) {
     double a[] = {1,2,3,4,5,6};
