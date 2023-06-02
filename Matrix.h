@@ -86,6 +86,12 @@ public:
             throw std::out_of_range("IndexOutOfRange");
         return values->Get(l + h * _l);
     }
+    size_t GetLength() const {
+        return _l;
+    }
+    size_t GetHight() const {
+        return _h;
+    }
     void Set(size_t l, size_t h, T value) {
         if (l < 0 || l >= _l || h < 0 || h >= _h)
             throw std::out_of_range("IndexOutOfRange");

@@ -83,7 +83,7 @@ public:
         }
         T resValue = rhs.values->Get(0) * values->Get(0);
         for (int i = 1; i < length; ++i) {
-            resValue += rhs.values->Get(i) * values->Get(i);
+            resValue = resValue + rhs.values->Get(i) * values->Get(i);
         }
         return resValue;
     }

@@ -67,6 +67,11 @@ public:
     size_t GetDegree() const {
         return coefficients->GetLength() - 1;
     }
+    T Get(size_t index) const {
+        if (index < 0 || index >= coefficients->GetLength())
+            throw std::out_of_range("IndexOutOfRange");
+        return coefficients->Get(index);
+    }
     size_t GetUpdatedDegree() {
 
         return coefficients->GetLength() - 1;
