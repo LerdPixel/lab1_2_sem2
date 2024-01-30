@@ -111,7 +111,7 @@ public:
             throw VectorDimension3();
         }
         T array[] {Get(1) * rhs.Get(2) - Get(2) * rhs.Get(1), - Get(0) * rhs.Get(2) + Get(2) * rhs.Get(0), Get(0) * rhs.Get(1) - Get(1) * rhs.Get(0)};
-        return MathVector(DynamicArray(array, 3));
+        return MathVector(DynamicArray<T>(array, 3));
     }
     MathVector operator*(T value) const {
         return MultScal(value);
