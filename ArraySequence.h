@@ -42,7 +42,7 @@ public:
         if (elements)
             delete elements;
     }
-    std::shared_ptr<IEnumerator<T>> GetEnumerator() {
+    std::shared_ptr<IEnumerator<T>> GetEnumerator() override {
         return elements->GetEnumerator();
     }
     T GetFirst() const override {
@@ -84,7 +84,7 @@ public:
         }
         this->elements->Set(0, item);
     }
-    T& operator[] (const size_t index) {
+    T& operator[] (const size_t index) override {
         return (*elements)[index];
     }
     void InsertAt(T item, size_t index) override {

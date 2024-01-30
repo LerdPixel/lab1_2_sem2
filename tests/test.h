@@ -112,8 +112,7 @@ TEST_F(DynamicArrayTests, DynamicArray_Enumerator_3) {
     ASSERT_EQ(i, 1);
 }
 TEST_F(DynamicArrayTest, DynamicArray_Get) {
-    int i = 0;
-    for (i; i < dc->GetLength(); ++i) {
+    for (int i = 0; i < dc->GetLength(); ++i) {
         ASSERT_EQ(dc->Get(i), i + 1);
     }
 }
