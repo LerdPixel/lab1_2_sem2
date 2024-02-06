@@ -42,7 +42,7 @@ public:
         if (elements)
             delete elements;
     }
-    std::shared_ptr<IEnumerator<T>> GetEnumerator() override {
+    shared_ptr<IEnumerator<T>> GetEnumerator() override {
         return elements->GetEnumerator();
     }
     T GetFirst() const override {

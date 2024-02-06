@@ -22,7 +22,6 @@ public:
         auto e = list->GetEnumerator();
         T_SEQ *resSequence = new T_SEQ(this);
         while (e->next()) {
-//            std::cout<< *(*e) << '\n';
             resSequence->Append(*(*e));
         }
         return resSequence;
@@ -32,9 +31,7 @@ public:
         IEnumerable<T> *base = this;
         auto e = base->GetEnumerator();
         T_SEQ *resSequence = new T_SEQ();
-//        std::cout<< " " << '\n';
         while (e->next()) {
-//            std::cout<< *(*e)<<" " << f(*(*e)) << '\n';
             resSequence->Append(f(*(*e)));
         }
         return resSequence;

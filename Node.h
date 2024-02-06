@@ -1,27 +1,26 @@
 #ifndef NODE_H
 #define NODE_H
-
+#include "smart_ptrs/shared_ptr.h"
 
 template <typename T>
 class Node {
 private:
     T value;
-    Node<T> *next;
+    shared_ptr<Node<T>> next;
 public:
-    Node(T value, Node<T> *next) : value(value), next(next) {}
+    Node(T value, shared_ptr<Node<T>> next) : value(value), next(next) {}
     Node(Node<T> &node) : value(node.value), next(node.next) {}
-    Node(T value) : value(value), next(nullptr) {}
-//    ~Node() {delete next;}
+    Node(T value) : value(value), next() {}
     T& GetReference() {
         return value;
     }
     T GetValue() const {
         return value;
     }
-    Node<T> *GetNext() const {
+    shared_ptr<Node<T>> GetNext() const {
         return next;
     }
-    void SetNext(Node<T> *node) {
+    void SetNext(shared_ptr<Node<T>> node) {
         next = node;
     }
     void SetValue(T value) {

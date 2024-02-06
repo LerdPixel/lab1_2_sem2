@@ -10,7 +10,7 @@
 #include <memory>
 #include <string>
 #include <chrono>
-using namespace std;
+//using namespace std;
 
 struct DynamicArrayTests : public testing::Test {
     size_t size;
@@ -43,17 +43,20 @@ TEST_F(DynamicArrayTests, DynamicArray_Get2) {
     }
     try {
         dc[1]->Get(0);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         ASSERT_STREQ("IndexOutOfRange", e.what());
     }
     try {dc[0]->Get(-1);}
-    catch(exception& e) {
+    catch(std::exception& e) {
         ASSERT_STREQ("IndexOutOfRange", e.what());
     }
 }
 TEST_F(DynamicArrayTests, DynamicArray_and_ICollection) {
     LinkedList<int>* l = new LinkedList<int>(*dc[0]);
+    l->GetLength();
+    std::cout << "OKKKKK\n";
     ASSERT_TRUE(*l==*dc[0]);
+    std::cout << "OKKKKK\n";
     delete l;
 }
 struct DynamicArrayTest : public testing::Test {
@@ -74,11 +77,11 @@ TEST_F(DynamicArrayTests, DynamicArray_Set) {
     ASSERT_EQ(dc[2]->Get(0), 0);
     try {
         dc[1]->Set(0, -1);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         ASSERT_STREQ("IndexOutOfRange", e.what());
     }
     try {dc[0]->Set(-1, 3);}
-    catch(exception& e) {
+    catch(std::exception& e) {
         ASSERT_STREQ("IndexOutOfRange", e.what());
     }
 }
@@ -89,16 +92,16 @@ TEST_F(DynamicArrayTests, DynamicArray_Resize) {
     ASSERT_EQ(dc[2]->GetLength(), 3);
     ASSERT_EQ(dc[0]->Get(0), 1);
     ASSERT_EQ(dc[2]->Get(0), 1);
-    string str;
+    std::string str;
     try {
         dc[0]->Get(3);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ("IndexOutOfRange", str.c_str());
     dc[0]->Get(2);
     try {dc[0]->Get(2);}
-    catch(exception& e) {
+    catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -172,19 +175,19 @@ TEST_F(LinkedListTests, LinkedList_Get_123) {
 }
 
 TEST_F(LinkedListTests, LinkedList_Get_edgeCase1) {
-    string str;
+    std::string str;
     try {
         dc[2]->Get(0);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
 
 TEST_F(LinkedListTests, LinkedList_Get_edgeCase2) {
-    string str;
+    std::string str;
     try {dc[0]->Get(-1);}
-    catch(exception& e) {
+    catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -197,10 +200,10 @@ TEST_F(LinkedListTests, LinkedList_GetFirst_1) {
 }
 
 TEST_F(LinkedListTests, LinkedList_GetFirst_edgeCase1) {
-    string str;
+    std::string str;
     try {
         dc[2]->GetFirst();
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -217,10 +220,10 @@ TEST_F(LinkedListTests, LinkedList_GetLast_1) {
 }
 
 TEST_F(LinkedListTests, LinkedList_GetLast_edgeCase1) {
-    string str;
+    std::string str;
     try {
         dc[2]->GetLast();
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -339,19 +342,19 @@ TEST_F(LinkedListTests, LinkedList_Set_123) {
 }
 
 TEST_F(LinkedListTests, LinkedList_Set_edgeCase1) {
-    string str;
+    std::string str;
     try {
         dc[2]->Set(0, 1);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
 
 TEST_F(LinkedListTests, LinkedList_Set_edgeCase2) {
-    string str;
+    std::string str;
     try {dc[0]->Set(-1, 0);}
-    catch(exception& e) {
+    catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -365,83 +368,84 @@ TEST_F(LinkedListTests, LinkedList_SetLast_1) {
 }
 TEST_F(LinkedListTests, LinkedList_GetSubList_1) {
     int array [] {2,3};
-    unique_ptr<LinkedList<int>> d(dc[0]->GetSubList(1, 3));
+    std::unique_ptr<LinkedList<int>> d(dc[0]->GetSubList(1, 3));
+    std::cout << "OKEY\n";
     ASSERT_TRUE(*d == LinkedList<int>(array, 2));
 }
 TEST_F(LinkedListTests, LinkedList_GetSubList_2) {
     int array [] {1};
-    unique_ptr<LinkedList<int>> d(dc[1]->GetSubList(0, 1));
+    std::unique_ptr<LinkedList<int>> d(dc[1]->GetSubList(0, 1));
     ASSERT_TRUE(*d == LinkedList<int>(array, 1));
 }
 TEST_F(LinkedListTests, LinkedList_GetSubList_3) {
     int array [] {1};
-    unique_ptr<LinkedList<int>> d(dc2->GetSubList(2, 2));
+    std::unique_ptr<LinkedList<int>> d(dc2->GetSubList(2, 2));
     ASSERT_TRUE(*d == LinkedList<int>());
 }
 TEST_F(LinkedListTests, LinkedList_GetSubList_4) {
     int array [] {3, 5, 4};
-    unique_ptr<LinkedList<int>> d(dc2->GetSubList(2, 5));
+    std::unique_ptr<LinkedList<int>> d(dc2->GetSubList(2, 5));
     ASSERT_TRUE(*d == LinkedList<int>(array, 3));
 }
 TEST_F(LinkedListTests, LinkedList_GetSubList_edgeCase1) {
-    string str;
+    std::string str;
     try {
         dc[2]->GetSubList(0, 1);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
 TEST_F(LinkedListTests, LinkedList_GetSubList_edgeCase2) {
-    string str;
+    std::string str;
     try {
         dc[0]->GetSubList(-1, 1);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
 TEST_F(LinkedListTests, LinkedList_GetSubList_edgeCase3) {
-    string str;
+    std::string str;
     try {
         dc[0]->GetSubList(1, 6);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
 TEST_F(LinkedListTests, LinkedList_GetSubList_edgeCase4) {
-    string str;
+    std::string str;
     try {
         dc[0]->GetSubList(-1, 15);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
 TEST_F(LinkedListTests, LinkedList_Concat_1) {
     int array [] {1,2,3,4,5,1,2,3,5,4};
-    shared_ptr<LinkedList<int>> d(dc[0]->Concat(dc2));
+    std::shared_ptr<LinkedList<int>> d(dc[0]->Concat(dc2));
     ASSERT_TRUE(*d == LinkedList<int>(array, 10));
 }
 TEST_F(LinkedListTests, LinkedList_Concat_2) {
     int array [] {1,2,3,4,5,1};
-    unique_ptr<LinkedList<int>> d(dc[0]->Concat(dc[1]));
+    std::unique_ptr<LinkedList<int>> d(dc[0]->Concat(dc[1]));
     ASSERT_TRUE(*d == LinkedList<int>(array, 6));
 }
 TEST_F(LinkedListTests, LinkedList_Concat_3) {
     int array [] {1,1,2,3,4,5};
-    unique_ptr<LinkedList<int>> d(dc[1]->Concat(dc[0]));
+    std::unique_ptr<LinkedList<int>> d(dc[1]->Concat(dc[0]));
     ASSERT_TRUE(*d == LinkedList<int>(array, 6));
 }
 TEST_F(LinkedListTests, LinkedList_Concat_4) {
     int array [] {1,2,3,4,5};
-    unique_ptr<LinkedList<int>> d(dc[0]->Concat(dc[2]));
+    std::unique_ptr<LinkedList<int>> d(dc[0]->Concat(dc[2]));
     ASSERT_TRUE(*d == LinkedList<int>(array, 5));
 }
 TEST_F(LinkedListTests, LinkedList_Concat_5) {
     int array [] {1,2,3,4,5};
-    unique_ptr<LinkedList<int>> d(dc[2]->Concat(dc[0]));
+    std::unique_ptr<LinkedList<int>> d(dc[2]->Concat(dc[0]));
     ASSERT_TRUE(*d == LinkedList<int>(array, 5));
 }
 
@@ -466,28 +470,28 @@ TEST_F(LinkedListTests, LinkedList_InsertAt_5) {
     ASSERT_TRUE(*dc[2] == LinkedList<int>(array, 1));
 }
 TEST_F(LinkedListTests, LinkedList_InsertAt_edgeCase_1) {
-    string str;
+    std::string str;
     try {
         dc[0]->InsertAt(-1, 6);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
 TEST_F(LinkedListTests, LinkedList_InsertAt_edgeCase_2) {
-    string str;
+    std::string str;
     try {
         dc[0]->InsertAt(-1, -1);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
 }
 TEST_F(LinkedListTests, LinkedList_InsertAt_edgeCase_3) {
-    string str;
+    std::string str;
     try {
         dc[2]->InsertAt(-1, 2);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -623,9 +627,9 @@ TEST_F(SequenceTests, LinkedList_Get_2) {
 }
 TEST_F(SequenceTests, Sequence_Get_3) {
     for (int i = 0; i < size; i += blockSize) {
-        string str;
+        std::string str;
         try {dc[2+i]->Get(0);}
-        catch(exception& e) {
+        catch(std::exception& e) {
             str = e.what();
         }
         ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -633,10 +637,10 @@ TEST_F(SequenceTests, Sequence_Get_3) {
 }
 TEST_F(SequenceTests, Sequence_Get_edgeCase1) {
     for (int i = 0; i < size; i += blockSize) {
-    string str;
+    std::string str;
     try {
         dc[0+i]->Get(5);
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -645,9 +649,9 @@ TEST_F(SequenceTests, Sequence_Get_edgeCase1) {
 
 TEST_F(SequenceTests, Sequence_Get_edgeCase2) {
     for (int i = 0; i < size; i += blockSize) {
-        string str;
+        std::string str;
         try {dc[0+i]->Get(-1);}
-        catch(exception& e) {
+        catch(std::exception& e) {
             str = e.what();
         }
         ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -658,10 +662,10 @@ TEST_F(SequenceTests, Sequence_Get_edgeCase2) {
 
 TEST_F(SequenceTests, LinkedList_GetFirst_edgeCase1) {
     for (int i = 0; i < size; i += blockSize) {
-    string str;
+    std::string str;
     try {
         dc[2+i]->GetFirst();
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -684,10 +688,10 @@ TEST_F(SequenceTests, LinkedList_GetLast_1) {
 
 TEST_F(SequenceTests, LinkedList_GetLast_edgeCase1) {
     for (int i = 0; i < size; i += blockSize) {
-    string str;
+    std::string str;
     try {
         dc[2+i]->GetLast();
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -695,10 +699,10 @@ TEST_F(SequenceTests, LinkedList_GetLast_edgeCase1) {
 }
 TEST_F(SequenceTests, Sequence_Operator_1) {
     for (int i = 0; i < size; i += blockSize) {
-    string str;
+    std::string str;
     try {
         (*dc[2+i])[0];
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -706,10 +710,10 @@ TEST_F(SequenceTests, Sequence_Operator_1) {
 }
 TEST_F(SequenceTests, Sequence_Operator_2) {
     for (int i = 0; i < size; i += blockSize) {
-    string str;
+    std::string str;
     try {
         (*dc[0+i])[-1];
-    } catch(exception& e) {
+    } catch(std::exception& e) {
         str = e.what();
     }
     ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -717,10 +721,10 @@ TEST_F(SequenceTests, Sequence_Operator_2) {
 }
 TEST_F(SequenceTests, Sequence_Operator_3) {
     for (int i = 0; i < size; i += blockSize) {
-        string str;
+        std::string str;
         try {
             (*dc[0+i])[5];
-        } catch(exception& e) {
+        } catch(std::exception& e) {
             str = e.what();
         }
         ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -774,10 +778,10 @@ TEST_F(SequenceTests, Sequence_GetSubsequence_3) {
 }
 TEST_F(SequenceTests, Sequence_GetSubsequence_4) {
     for (int i = 0; i < size; i += blockSize) {
-        string str;
+        std::string str;
         try {
             dc[0+i]->GetSubsequence(-1, 6);
-        } catch(exception& e) {
+        } catch(std::exception& e) {
             str = e.what();
         }
         ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -785,10 +789,10 @@ TEST_F(SequenceTests, Sequence_GetSubsequence_4) {
 }
 TEST_F(SequenceTests, Sequence_GetSubsequence_5) {
     for (int i = 0; i < size; i += blockSize) {
-        string str;
+        std::string str;
         try {
             dc[0+i]->GetSubsequence(-1, 2);
-        } catch(exception& e) {
+        } catch(std::exception& e) {
             str = e.what();
         }
         ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -796,10 +800,10 @@ TEST_F(SequenceTests, Sequence_GetSubsequence_5) {
 }
 TEST_F(SequenceTests, Sequence_GetSubsequence_6) {
     for (int i = 0; i < size; i += blockSize) {
-        string str;
+        std::string str;
         try {
             dc[0+i]->GetSubsequence(5, 6);
-        } catch(exception& e) {
+        } catch(std::exception& e) {
             str = e.what();
         }
         ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -860,7 +864,7 @@ TEST_F(SequenceTests, DynamicArray_Append) {
     }
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+    std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;
 }
 TEST_F(SequenceTests, DynamicArray_Prepend) {
     int a [] {10};
@@ -870,7 +874,7 @@ TEST_F(SequenceTests, DynamicArray_Prepend) {
     }
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-    cout << "Time taken by function: " << duration.count() << " microseconds" << endl;
+    std::cout << "Time taken by function: " << duration.count() << " microseconds" << std::endl;
 }
 TEST_F(SequenceTests, Sequence_Prepend_0) {
     int a [] {4,10, 20, 30};
@@ -924,10 +928,10 @@ TEST_F(SequenceTests, Sequence_InsertAt_4) {
 }
 TEST_F(SequenceTests, Sequence_InsertAt_6) {
     for (int i = 0; i < size; i += blockSize) {
-        string str;
+        std::string str;
         try {
             dc[0+i]->InsertAt(10, -1);
-        } catch(exception& e) {
+        } catch(std::exception& e) {
             str = e.what();
         }
         ASSERT_STREQ(str.c_str(), "IndexOutOfRange");
@@ -935,10 +939,10 @@ TEST_F(SequenceTests, Sequence_InsertAt_6) {
 }
 TEST_F(SequenceTests, Sequence_InsertAt_7) {
     for (int i = 0; i < size; i += blockSize) {
-        string str;
+        std::string str;
         try {
             dc[0+i]->InsertAt(10, 6);
-        } catch(exception& e) {
+        } catch(std::exception& e) {
             str = e.what();
         }
         ASSERT_STREQ(str.c_str(), "IndexOutOfRange");

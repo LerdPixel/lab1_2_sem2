@@ -1,13 +1,13 @@
 #ifndef IENUMERABLE
 #define IENUMERABLE
-#include <memory>
+#include "smart_ptrs/shared_ptr.h"
 #include "IEnumerator.h"
 
 
 template <class T>
 class IEnumerable {
 public:
-    virtual std::shared_ptr<IEnumerator<T>> GetEnumerator() = 0;
+    virtual shared_ptr<IEnumerator<T>> GetEnumerator() = 0;
     virtual ~IEnumerable() {}
 };
 #endif

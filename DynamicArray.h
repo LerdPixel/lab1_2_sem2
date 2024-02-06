@@ -1,7 +1,7 @@
 #ifndef DYNAMIC_ARRAY_H
 #define DYNAMIC_ARRAY_H
 #include <iostream>
-#include <memory>
+#include "smart_ptrs/shared_ptr.h"
 #include "IEnumerable.h"
 #include "IEnumerator.h"
 #include "ICollection.h"
@@ -31,7 +31,7 @@ public:
     DynamicArray(const DynamicArray<T> &dynamicArray);
     DynamicArray(const ICollection<T> &collection);
     ~DynamicArray();
-    std::shared_ptr<IEnumerator<T>> GetEnumerator() override;
+    shared_ptr<IEnumerator<T>> GetEnumerator() override;
     T Get(size_t index) const override;
     T& operator[](size_t index);
     size_t GetLength() const override;
@@ -95,8 +95,8 @@ DynamicArray<T> :: ~ DynamicArray() {
         delete [] array;
 }
 template <typename T>
-std::shared_ptr<IEnumerator<T>> DynamicArray<T> :: GetEnumerator() {
-    return std::shared_ptr<IEnumerator<T>>(new DynamicArray<T>::ArrayEnumerator(this));
+shared_ptr<IEnumerator<T>> DynamicArray<T> :: GetEnumerator() {
+    return shared_ptr<IEnumerator<T>>(new DynamicArray<T>::ArrayEnumerator(this));
 }
 
 

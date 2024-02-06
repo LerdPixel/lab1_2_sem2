@@ -34,3 +34,8 @@ all_tests_headers.h
 *.exe
 *.out
 *.app
+
+# Debugs
+*.yml
+*.plist
+main
