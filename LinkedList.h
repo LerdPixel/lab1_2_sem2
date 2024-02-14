@@ -7,12 +7,12 @@
 template <typename T>
 class LinkedList : public IEnumerable<T>, public ICollection<T> {
 protected:
-    shared_ptr<Node<T>> header;
+    Node<T> *header;
 private:
-    shared_ptr<Node<T>> GetNode(size_t index) const;
+    Node<T>* GetNode(size_t index) const;
 public:
     class LinkedListEnumerator : public IEnumerator<T> {
-        shared_ptr<Node<T>> _n;
+        Node<T>* _n;
         LinkedList<T> *_s;
         bool _st;
     public:
@@ -20,11 +20,11 @@ public:
         bool next() override {
             if (_st) {
                 _st = false;
-                if (!_n)
+                if (_n == nullptr)
                     return false;
                 return true;
             }
-            if (!_n || !_n->GetNext())
+            if (_n == nullptr || _n->GetNext() == nullptr)
                 return false;
             _n = _n->GetNext();
             return true;
@@ -34,9 +34,9 @@ public:
     LinkedList();
     LinkedList(T *items, size_t size);
     LinkedList(const LinkedList<T> &list);
-    LinkedList(shared_ptr<Node<T>> head);
+    LinkedList(Node<T>* head);
     LinkedList(const ICollection<T> &collection);
- //   ~LinkedList();
+    ~LinkedList();
     shared_ptr<IEnumerator<T>> GetEnumerator() override;
     T GetFirst() const;
     T GetLast() const;
@@ -54,42 +54,43 @@ public:
 
 template <typename T>
 LinkedList<T> :: LinkedList() {
+    header = nullptr;
 }
 template <typename T>
 LinkedList<T> :: LinkedList(T *items, size_t size) {
     if (size < 0)
         throw std::length_error("Size can't be negative");
     if (size == 0) {
-//        header();
+        header = nullptr;
     }
     else {
-        header = make_shared<Node<T>>(items[0]);
-        shared_ptr<Node<T>> nodeRing = header;
+        header = new Node<T>(items[0], nullptr);
+        Node<T> *nodeRing = header;
         for (size_t i = 1; i < size; ++i) {
-            nodeRing->SetNext(make_shared<Node<T>>(items[i]));
+            nodeRing->SetNext(new Node<T>(items[i], nullptr));
             nodeRing = nodeRing->GetNext();
         }
     }
 }
 template <typename T>
 LinkedList<T> :: LinkedList(const LinkedList <T> &list) {
-    if (!list.header) {
-        //header();
+    if (list.header == nullptr) {
+        header = nullptr;
         return;
     }
-    header = make_shared<Node<T>>(*list.header);
-    shared_ptr<Node<T>> node = header;
-    shared_ptr<Node<T>> listNode = list.header->GetNext();
-    while(listNode) {
-        node->SetNext(make_shared<Node<T>>(*listNode));
+    header = new Node<T>(*list.header);
+    Node<T> *node = header;
+    Node<T> *listNode = list.header->GetNext();
+    while(listNode != nullptr) {
+        node->SetNext(new Node<T>(*listNode));
         node = node->GetNext();
         listNode = listNode->GetNext();
     }
 }
 template <typename T>
-LinkedList<T> :: LinkedList(shared_ptr<Node<T>> head) {
+LinkedList<T> :: LinkedList(Node<T>* head) {
     header = head;
-    while (head) {
+    while (head != nullptr) {
         head = head->GetNext();
     }
 }
@@ -97,18 +98,18 @@ template <typename T>
 LinkedList<T> :: LinkedList(const ICollection<T> &collection) {
     size_t length = collection.GetLength();
     if (length == 0) {
-   //     header();
+        header = nullptr;
     }
     else {
-        header = make_shared<Node<T>>(collection.Get(0));
-        shared_ptr<Node<T>> nodeRing = header;
+        header = new Node<T>(collection.Get(0), nullptr);
+        Node<T> *nodeRing = header;
         for (size_t i = 1; i < length; ++i) {
-            nodeRing->SetNext(make_shared<Node<T>>(collection.Get(i)));
+            nodeRing->SetNext(new Node<T>(collection.Get(i), nullptr));
             nodeRing = nodeRing->GetNext();
         }
     }
 }
-/*template <typename T>
+template <typename T>
 LinkedList<T> :: ~LinkedList() {
     Node<T> *node = header;
     Node<T> *nodeNext;
@@ -117,14 +118,14 @@ LinkedList<T> :: ~LinkedList() {
         delete node;
         node = nodeNext;
     }
-}*/
+}
 template <typename T>
 shared_ptr<IEnumerator<T>> LinkedList<T> :: GetEnumerator() {
     return shared_ptr<IEnumerator<T>>(new LinkedList<T>::LinkedListEnumerator(this));
 }
 template <typename T>
 T LinkedList<T> :: GetFirst() const {
-    if (header) {
+    if (header != nullptr) {
         return header->GetValue();
     }
     else {
@@ -133,9 +134,9 @@ T LinkedList<T> :: GetFirst() const {
 }
 template <typename T>
 T LinkedList<T> :: GetLast() const {
-    if (header) {
-        shared_ptr<Node<T>> node = header;
-        while (node->GetNext()) {
+    if (header != nullptr) {
+        Node<T>* node = header;
+        while (node->GetNext() != nullptr) {
             node = node->GetNext();
         }
         return node->GetValue();
@@ -153,10 +154,10 @@ T& LinkedList<T> :: operator[](size_t index) {
     return GetNode(index)->GetReference();
 }
 template <typename T>
-shared_ptr<Node<T>> LinkedList<T> :: GetNode(size_t index) const {
+Node<T>* LinkedList<T> :: GetNode(size_t index) const {
     size_t length = GetLength();
-    if (index < length && index >= 0 && header) {
-        shared_ptr<Node<T>> node = header;
+    if (index < length && index >= 0 && header != nullptr) {
+        Node<T>* node = header;
         for (size_t i = 0; i < index; i++) {
             node = node->GetNext();
         }
@@ -168,9 +169,9 @@ shared_ptr<Node<T>> LinkedList<T> :: GetNode(size_t index) const {
 }
 template <typename T>
 size_t LinkedList<T> :: GetLength() const {
-    shared_ptr<Node<T>> node = header;
+    Node<T>* node = header;
     size_t i = 0;
-    while (node) {
+    while (node != nullptr) {
         node = node->GetNext();
         ++i;
     }
@@ -178,26 +179,26 @@ size_t LinkedList<T> :: GetLength() const {
 }
 template <typename T>
 void LinkedList<T> :: Append(T item) {
-    if (!header) {
-        header = make_shared<Node<T>>(item);
+    if (header == nullptr) {
+        header = new Node<T>(item);
         return;
     }
-    shared_ptr<Node<T>> node = header;
-    while (node->GetNext()) {
+    Node<T>* node = header;
+    while (node->GetNext() != nullptr) {
         node = node->GetNext();
     }
-    node->SetNext(make_shared<Node<T>>(item));
+    node->SetNext(new Node<T>(item, nullptr));
 }
 template <typename T>
 void LinkedList<T> :: Prepend(T item) {
-    shared_ptr<Node<T>> node = header;
-    header = make_shared<Node<T>>(item, node);
+    Node<T>* node = header;
+    header = new Node<T>(item, node);
 }
 template <typename T>
 void LinkedList<T> :: Set(size_t index, T value) {
     size_t length = GetLength();
-    if (index < length && index >= 0 && header) {
-        shared_ptr<Node<T>> node = header;
+    if (index < length && index >= 0 && header != nullptr) {
+        Node<T>* node = header;
         for (size_t i = 0; i < index; i++) {
             node = node->GetNext();
         }
@@ -208,9 +209,9 @@ void LinkedList<T> :: Set(size_t index, T value) {
     }
 }
 template <typename T>
-LinkedList<T>* LinkedList<T> :: GetSubList(size_t startIndex, size_t endIndex) const {
+LinkedList<T> * LinkedList<T> :: GetSubList(size_t startIndex, size_t endIndex) const {
     size_t length = GetLength();
-    if (startIndex <= length && startIndex >= 0 && endIndex <= length && endIndex >= 0) {
+    if (startIndex <= length && startIndex >= 0 && endIndex <= length && endIndex >= 0/* && header != nullptr*/) {
         if (startIndex > endIndex) {
             size_t t = startIndex;
             startIndex = endIndex;
@@ -218,15 +219,15 @@ LinkedList<T>* LinkedList<T> :: GetSubList(size_t startIndex, size_t endIndex) c
         }
         else if (startIndex == endIndex)
             return new LinkedList();
-        shared_ptr<Node<T>> node = GetNode(startIndex);
-        shared_ptr<Node<T>> newHeader = make_shared<Node<T>>(*node);
-        shared_ptr<Node<T>> newNode = newHeader;
+        Node<T>* node = GetNode(startIndex);
+        Node<T>* newHeader = new Node<T>(*node);
+        Node<T>* newNode = newHeader;
         for (size_t i = startIndex + 1; i < endIndex; ++i) {
             node = node->GetNext();
-            newNode->SetNext(make_shared<Node<T>>(*node));
+            newNode->SetNext(new Node<T>(*node));
             newNode = newNode->GetNext();
         }
-        newNode->SetNext(shared_ptr<Node<T>>());
+        newNode->SetNext(nullptr);
         return new LinkedList(newHeader);
     }
     else {
@@ -247,25 +248,28 @@ void LinkedList<T> :: InsertAt(T item, size_t index) {
     size_t length = GetLength();
     if (index > length || index < 0)
         throw std::out_of_range("IndexOutOfRange");
-    if (index == 0 || !header) {
-        header = make_shared<Node<T>>(item, header);
+    if (index == 0 || header == nullptr) {
+        header = new Node<T>(item, header);
     }
     else {
-        shared_ptr<Node<T>> stNode = GetNode(index-1);
-        shared_ptr<Node<T>> newNode = make_shared<Node<T>>(item, stNode->GetNext());
+        Node<T> *stNode = GetNode(index-1);
+        Node<T> *newNode = new Node<T>(item, stNode->GetNext());
         stNode->SetNext(newNode);
     }
 }
 template <typename T>
 inline bool LinkedList<T> :: operator==(const LinkedList<T> &rhs) const {
-    shared_ptr<Node<T>> nodeL = this->header, nodeR = rhs.header;
-    while(nodeL && nodeR) {
+    Node<T> *nodeL = this->header, *nodeR = rhs.header;
+//    size_t i = 0;
+    while(nodeL != nullptr && nodeR != nullptr) {
+//        std::cout << i++ << "   left:" << nodeL->GetValue() << "   right:" << nodeR->GetValue() << '\n';
         if (nodeL->GetValue() != nodeR->GetValue())
             return false;
         nodeL = nodeL->GetNext();
         nodeR = nodeR->GetNext();
     }
-    if (!(nodeL || nodeR)) {
+    if (nodeL == nullptr && nodeR == nullptr) {
+//        std::cout << "/* message */"<< i << '\n';
         return true;
     }
     return false;

@@ -3,6 +3,7 @@
 c
 cpp
 test
+main
 all_tests_headers.h
 
 # Compiled Object files
@@ -38,4 +39,4 @@ all_tests_headers.h
 # Debugs
 *.yml
 *.plist
-main
+*.dSYM/

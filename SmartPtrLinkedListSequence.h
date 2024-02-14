@@ -1,44 +1,42 @@
 #ifndef LINKED_LIST_SEQUENCE_H
 #define LINKED_LIST_SEQUENCE_H
 #include "smart_ptrs/shared_ptr.h"
-#include "LinkedList.h"
+#include "SmartPtrLinkedList.h"
 #include "Sequence.h"
 
 
 template <typename T>
-class LinkedListSequence : public Sequence<T> {
+class SmartPtrLinkedListSequence : public Sequence<T> {
 protected:
-    LinkedList<T> *elements;
+    shared_ptr<SmartPtrLinkedList<T>> elements;
 public:
-    LinkedListSequence() {
-        this->elements = new LinkedList<T>();
+    SmartPtrLinkedListSequence() {
+        this->elements = shared_ptr<SmartPtrLinkedList<T>>(new SmartPtrLinkedList<T>());
     }
-    LinkedListSequence(T* items, size_t count) {
-        this->elements = new LinkedList<T>(items, count);
+    SmartPtrLinkedListSequence(T* items, size_t count) {
+        this->elements = shared_ptr<SmartPtrLinkedList<T>>(new SmartPtrLinkedList<T>(items, count));
     }
-    LinkedListSequence(const Sequence<T> *sequence) {
+    SmartPtrLinkedListSequence(const Sequence<T> *sequence) {
         size_t length = sequence->GetLength();
-        this->elements = new LinkedList<T>();
+        this->elements = shared_ptr<SmartPtrLinkedList<T>>(new SmartPtrLinkedList<T>());
         for (size_t i = 0; i < length; ++i) {
             elements->Append(sequence->Get(i));
         }
     }
-    LinkedListSequence(const Sequence<T> &sequence) {
+    SmartPtrLinkedListSequence(const Sequence<T> &sequence) {
         size_t length = sequence.GetLength();
-        this->elements = new LinkedList<T>();
+        this->elements = shared_ptr<SmartPtrLinkedList<T>>(new SmartPtrLinkedList<T>());
         for (size_t i = 0; i < length; ++i) {
             elements->Append(sequence.Get(i));
         }
     }
-    LinkedListSequence(const LinkedList<T> &list) {
-        this->elements = new LinkedList<T>(list);
+    SmartPtrLinkedListSequence(const SmartPtrLinkedList<T> &list) {
+        this->elements = shared_ptr<SmartPtrLinkedList<T>>(new SmartPtrLinkedList<T>(list));
     }
-    LinkedListSequence(const ICollection<T> &collection) {
-        this->elements = new LinkedList<T>(collection);
+    SmartPtrLinkedListSequence(const ICollection<T> &collection) {
+        this->elements = shared_ptr<SmartPtrLinkedList<T>>(new SmartPtrLinkedList<T>(collection));
     }
-    ~LinkedListSequence() {
-        if (elements)
-            delete elements;
+    ~SmartPtrLinkedListSequence() {
     }
     T GetFirst() const override {
         return elements->GetFirst();
@@ -53,8 +51,8 @@ public:
         return elements->GetEnumerator();
     }
     Sequence<T>* GetSubsequence(size_t startIndex, size_t endIndex) const override {
-        LinkedList<T> *list = elements->GetSubList(startIndex, endIndex);
-        LinkedListSequence<T> *res = new LinkedListSequence<T>(*list);
+        SmartPtrLinkedList<T> *list = elements->GetSubList(startIndex, endIndex);
+        SmartPtrLinkedListSequence<T> *res = new SmartPtrLinkedListSequence<T>(*list);
         delete list;
         return res;
     }
@@ -74,7 +72,7 @@ public:
         elements->InsertAt(item, index);
     }
     void Remove(size_t index) override {
-
+        
     }
 };
 
